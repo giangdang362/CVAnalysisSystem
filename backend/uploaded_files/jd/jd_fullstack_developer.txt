@@ -1,0 +1,12 @@
+
+    Job Title: Fullstack Developer
+    Responsibilities:
+    - Develop and maintain both frontend and backend components of web applications.
+    - Collaborate with cross-functional teams to deliver complete solutions.
+    - Ensure application security and data protection.
+
+    Requirements:
+    - Experience with MERN or MEAN stack.
+    - Proficient in both frontend (React, Angular) and backend (Node.js, Python) development.
+    - Knowledge of cloud services (AWS, Azure, GCP) is a plus.
+    

@@ -1,0 +1,12 @@
+
+    Job Title: Frontend Developer
+    Responsibilities:
+    - Implement user interfaces using modern web technologies.
+    - Collaborate with designers to ensure high-quality user experiences.
+    - Debug and optimize frontend performance.
+
+    Requirements:
+    - Proficiency in HTML, CSS, JavaScript, and frameworks like React or Angular.
+    - Understanding of responsive design and cross-browser compatibility.
+    - Experience with version control systems like Git.
+    

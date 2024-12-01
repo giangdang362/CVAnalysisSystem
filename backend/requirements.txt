@@ -1,0 +1,7 @@
+openai
+fastapi
+uvicorn
+python-docx
+tika
+PyPDF2
+python-dotenv

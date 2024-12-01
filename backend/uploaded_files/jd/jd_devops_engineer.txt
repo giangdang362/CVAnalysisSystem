@@ -1,0 +1,12 @@
+
+    Job Title: DevOps Engineer
+    Responsibilities:
+    - Automate and streamline deployment processes.
+    - Maintain CI/CD pipelines for multiple environments.
+    - Monitor and troubleshoot infrastructure issues.
+
+    Requirements:
+    - Experience with tools like Jenkins, Docker, and Kubernetes.
+    - Proficient in scripting languages (Bash, Python).
+    - Knowledge of infrastructure as code (Terraform, Ansible).
+    

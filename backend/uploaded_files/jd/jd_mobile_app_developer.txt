@@ -1,0 +1,12 @@
+
+    Job Title: Mobile App Developer
+    Responsibilities:
+    - Develop high-quality mobile applications for Android and iOS platforms.
+    - Work closely with the design team to implement app features.
+    - Debug and optimize app performance.
+
+    Requirements:
+    - Strong knowledge of Kotlin (Android) or Swift (iOS).
+    - Familiarity with cross-platform frameworks like Flutter or React Native.
+    - Experience with mobile app deployment on App Store/Play Store.
+    
