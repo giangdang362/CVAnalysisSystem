@@ -27,7 +27,7 @@ def list_local_jds() -> list:
 
 def sync_jds_from_api(api_url: str) -> dict:
     """
-    Đồng bộ JD từ API và lưu về local
+    Đồng bộ JD từ API và lưu về local. Nếu gặp lỗi, trả về danh sách JD hiện có trong local.
     """
     try:
         # Gửi request đến API
@@ -54,7 +54,15 @@ def sync_jds_from_api(api_url: str) -> dict:
 
     except requests.exceptions.RequestException as e:
         # Xử lý lỗi kết nối hoặc lỗi HTTP
-        return {"error": f"Failed to fetch JD from API. Error: {str(e)}"}
+        print(f"Failed to fetch JD from API. Error: {str(e)}")
+        return {
+            "error": f"Failed to fetch JD from API. Error: {str(e)}",
+            "local_jds": list_local_jds()  # Trả về danh sách JD trong local
+        }
     except Exception as e:
         # Xử lý lỗi khác
-        return {"error": f"An unexpected error occurred. Error: {str(e)}"}
+        print(f"An unexpected error occurred. Error: {str(e)}")
+        return {
+            "error": f"An unexpected error occurred. Error: {str(e)}",
+            "local_jds": list_local_jds()  # Trả về danh sách JD trong local
+        }
