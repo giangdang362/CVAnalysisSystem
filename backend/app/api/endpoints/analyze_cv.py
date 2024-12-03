@@ -33,10 +33,11 @@ async def analyze_cv(cv_file: UploadFile):
     # Lấy danh sách JD từ local
     jd_list = list_local_jds()
     if not jd_list:
-        raise HTTPException(
-            status_code=500,
-            detail="No JD available in local storage."
-        )
+        return {
+            "message": "No JD available in local storage.",
+            "data": [],
+            "count": 0,
+        }
 
     jd_texts = [jd["content"] for jd in jd_list]
 
@@ -51,5 +52,6 @@ async def analyze_cv(cv_file: UploadFile):
 
     return {
         "message": "CV analyzed successfully",
-        "ranked_jds": ranked_jds
+        "data": ranked_jds,
+        "count": len(ranked_jds),
     }
