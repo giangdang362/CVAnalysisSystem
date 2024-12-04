@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, HTTPException
+from fastapi import APIRouter, HTTPException
 from pathlib import Path
 from app.core.extractor import extract_text_from_file
 from app.core.ranker import rank_jds_with_cv
@@ -6,24 +6,22 @@ from app.core.jd_service import list_local_jds
 
 router = APIRouter()
 
-ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt"}
+TEMP_DIR = Path("uploaded_files/temp")  # Thư mục lưu file tạm
+
 
 @router.post("/")
-async def analyze_cv(cv_file: UploadFile):
+async def analyze_cv(filename: str):
     """
-    Phân tích CV và so sánh với danh sách JD từ local.
+    Phân tích CV từ thư mục tạm và so sánh với danh sách JD từ local.
     """
-    # Kiểm tra định dạng file
-    file_extension = Path(cv_file.filename).suffix.lower()
-    if file_extension not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail="Unsupported file format. Only PDF, DOCX, and TXT are allowed."
-        )
+    # Lấy đường dẫn file trong thư mục tạm
+    file_path = TEMP_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found in temporary storage.")
 
     # Đọc nội dung CV
     try:
-        cv_text = extract_text_from_file(cv_file.file)
+        cv_text = extract_text_from_file(file_path)
     except Exception as e:
         raise HTTPException(
             status_code=500,
