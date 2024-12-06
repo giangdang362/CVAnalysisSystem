@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import analyze_cv, analyze_jd, upload
+from app.api.endpoints import analyze_cv, analyze_jd
+from app.core import cv_service, jd_service
 
 app = FastAPI(
     title="CV and JD Analysis System",
@@ -23,6 +24,5 @@ async def root():
     return {"message": "Welcome to CV and JD Analysis System"}
 
 # Đăng ký các router
-app.include_router(analyze_cv.router, prefix="/analyze/cv", tags=["Analyze CV"])
-app.include_router(analyze_jd.router, prefix="/analyze/jd", tags=["Analyze JD"])
-app.include_router(upload.router, prefix="/upload", tags=["Upload"])
+app.include_router(analyze_cv.router, prefix="/cv", tags=["Analyze CV"])
+app.include_router(analyze_jd.router, prefix="/jd", tags=["Analyze JD"])

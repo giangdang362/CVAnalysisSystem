@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Upload, Button, List, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { analyzeCV } from "@/services/analyze";
 import { getJDList } from "@/services/jd";
 import ResultDisplay from "./ResultDisplay";
+import { analyzeCV } from "@/services/cv";
 
 interface Props {
   onBack: () => void;
@@ -20,6 +20,7 @@ const AnalyzeCV: React.FC<Props> = ({ onBack }) => {
       try {
         const data = await getJDList(); // Định nghĩa type API.JD[] cho dữ liệu JD
         setJDRes(data);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         message.error("Failed to fetch JD List.");
       }
@@ -35,6 +36,7 @@ const AnalyzeCV: React.FC<Props> = ({ onBack }) => {
     try {
       const data: API.ResponseAnalyze = await analyzeCV(file); // Sử dụng type API.ResponseAnalyze
       setResult(data);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error("Failed to analyze CV.");
     }
@@ -72,7 +74,7 @@ const AnalyzeCV: React.FC<Props> = ({ onBack }) => {
           <List
             bordered
             dataSource={jdRes?.data}
-            renderItem={(jd) => <List.Item>{jd.jd_name}</List.Item>}
+            renderItem={(jd) => <List.Item>{jd.name}</List.Item>}
           />
         </div>
       </div>

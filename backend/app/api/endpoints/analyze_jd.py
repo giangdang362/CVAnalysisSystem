@@ -1,32 +1,59 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile
 from pathlib import Path
-from app.core.extractor import extract_text_from_file
+from io import BytesIO
+from app.core.extractor import extract_text_from_file, extract_text_from_word, extract_text_from_pdf, extract_text_from_txt
 from app.core.ranker import rank_cvs_with_jd
 from app.core.cv_service import list_local_cvs
+from app.core.jd_service import list_local_jds
 
 router = APIRouter()
 
-TEMP_DIR = Path("uploaded_files/temp")  # Thư mục lưu file tạm
+ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 
-
-@router.post("/")
-async def analyze_jd(filename: str):
+@router.get("/list")
+async def get_jd_list():
     """
-    Phân tích JD từ thư mục tạm và so sánh với danh sách CV từ local.
+    Lấy danh sách tất cả các JD từ local.
     """
-    # Lấy đường dẫn file trong thư mục tạm
-    file_path = TEMP_DIR / filename
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="File not found in temporary storage.")
+    try:
+        jd_list = list_local_jds()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get JD list. Error: {str(e)}")
 
+    return {
+        "message": "JD list retrieved successfully",
+        "data": jd_list,
+        "count": len(jd_list),
+    }
+
+@router.post("/analyze/")
+async def analyze_jd(file: UploadFile):
+    """
+    Upload file JD, đọc nội dung và thực hiện phân tích JD so với danh sách CV.
+    """
+    # Kiểm tra định dạng file thông qua file.filename
+    file_extension = Path(file.filename).suffix.lower()
+    if file_extension not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="Unsupported file format. Only PDF, DOCX, and TXT are allowed.")
+    
     # Đọc nội dung JD
     try:
-        jd_text = extract_text_from_file(file_path)
+        # Đọc trực tiếp từ file SpooledTemporaryFile
+        file_content = await file.read()  # Đọc nội dung file dưới dạng byte
+        file_io = BytesIO(file_content)  # Chuyển byte thành stream để xử lý với hàm extract_text_from_file
+        
+        # Chọn đúng phương thức xử lý cho từng loại file
+        if file_extension == ".pdf":
+            jd_text = extract_text_from_pdf(file_io)
+        elif file_extension == ".docx":
+            jd_text = extract_text_from_word(file_io)
+        elif file_extension == ".txt":
+            jd_text = extract_text_from_txt(file_io)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file type for extraction.")
+        
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to extract text from JD. Error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to extract text from JD. Error: {str(e)}")
 
     # Lấy danh sách CV từ local
     cv_list = list_local_cvs()
@@ -41,15 +68,12 @@ async def analyze_jd(filename: str):
 
     # So sánh JD với danh sách CV và xếp hạng
     try:
-        ranked_cvs = rank_cvs_with_jd(jd_text, cv_texts)
+        ranked_cvs = rank_cvs_with_jd(file.filename, jd_text, cv_texts)
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to rank CVs with JD. Error: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to rank CVs with JD. Error: {str(e)}")
 
     return {
-        "message": "JD analyzed successfully",
+        "message": "JD analyzed and uploaded successfully",
         "data": ranked_cvs,
         "count": len(ranked_cvs),
     }

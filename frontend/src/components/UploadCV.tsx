@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Upload, Button, message, Spin, Card, Descriptions } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { analyzeCV } from "../services/analyze";
+import { analyzeCV } from "@/services/cv";
 
 const UploadCV: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);

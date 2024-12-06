@@ -15,20 +15,19 @@ declare namespace API {
 
   type ResponseGetListCV = {
     message: string;
-    data: {
-      cv_name?: string;
-      file_path?: string;
-      content?: string;
-    }[];
+    data: CvJdItem[];
     count: number;
   }
+
   type ResponseGetListJD = {
     message: string;
-    data: {
-      jd_name?: string;
-      file_path?: string;
-      content?: string;
-    }[];
+    data: CvJdItem[];
     count: number;
+  }
+
+  type CvJdItem = {
+    name?: string;
+    file_path?: string;
+    content?: string;F
   }
 }

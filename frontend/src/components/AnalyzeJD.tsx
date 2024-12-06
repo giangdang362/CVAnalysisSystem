@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Upload, Button, List, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { analyzeJD } from "@/services/analyze";
 import ResultDisplay from "@/components/ResultDisplay";
 import { getCVList } from "@/services/cv";
+import { analyzeJD } from "@/services/jd";
 
 interface Props {
   onBack: () => void;
@@ -13,6 +13,7 @@ const AnalyzeJD: React.FC<Props> = ({ onBack }) => {
   const [file, setFile] = useState<File | null>(null);
   const [cvRes, setCVRes] = useState<API.ResponseGetListCV>();
   const [result, setResult] = useState<API.ResponseAnalyze | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);  // Trạng thái loading cho button
 
   useEffect(() => {
     // Fetch CV list on component mount
@@ -20,6 +21,7 @@ const AnalyzeJD: React.FC<Props> = ({ onBack }) => {
       try {
         const res = await getCVList();
         setCVRes(res);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         message.error("Failed to fetch CV List.");
       }
@@ -32,12 +34,18 @@ const AnalyzeJD: React.FC<Props> = ({ onBack }) => {
       message.warning("Please upload a JD first!");
       return;
     }
+    
+    setLoading(true);  // Bật trạng thái loading
+
     try {
       const data = await analyzeJD(file);
       setResult(data);
       message.success("Analysis completed successfully!");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error("Failed to analyze JD. Please try again.");
+    } finally {
+      setLoading(false);  // Tắt trạng thái loading khi hoàn thành
     }
   };
 
@@ -62,7 +70,8 @@ const AnalyzeJD: React.FC<Props> = ({ onBack }) => {
           <Button
             type="primary"
             onClick={handleAnalyze}
-            disabled={!file}
+            disabled={!file}  // Disable khi không có file
+            loading={loading}  // Trạng thái loading cho button
             style={{ marginTop: "10px" }}
           >
             Analyze
@@ -73,7 +82,7 @@ const AnalyzeJD: React.FC<Props> = ({ onBack }) => {
           <List
             bordered
             dataSource={cvRes?.data}
-            renderItem={(cv) => <List.Item>{cv.cv_name}</List.Item>}
+            renderItem={(cv) => <List.Item>{cv.name}</List.Item>}
           />
         </div>
       </div>
