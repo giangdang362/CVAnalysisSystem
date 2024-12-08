@@ -13,6 +13,7 @@ const AnalyzeCV: React.FC<Props> = ({ onBack }) => {
   const [file, setFile] = useState<File | null>(null);
   const [jdRes, setJDRes] = useState<API.ResponseGetListJD>(); // Sử dụng type API.JD
   const [result, setResult] = useState<API.ResponseAnalyze | null>(null); // Sử dụng type API.ResponseAnalyze
+  const [loading, setLoading] = useState<boolean>(false);  // Trạng thái loading cho button
 
   // Fetch danh sách JD khi component mount
   useEffect(() => {
@@ -33,12 +34,15 @@ const AnalyzeCV: React.FC<Props> = ({ onBack }) => {
       message.warning("Please upload a CV first!");
       return;
     }
+    setLoading(true);  // Bật trạng thái loading
     try {
       const data: API.ResponseAnalyze = await analyzeCV(file); // Sử dụng type API.ResponseAnalyze
       setResult(data);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       message.error("Failed to analyze CV.");
+    } finally {
+      setLoading(false);  // Tắt trạng thái loading khi hoàn thành
     }
   };
 
@@ -64,6 +68,7 @@ const AnalyzeCV: React.FC<Props> = ({ onBack }) => {
             type="primary"
             onClick={handleAnalyze}
             disabled={!file}
+            loading={loading}  // Trạng thái loading cho button
             style={{ marginTop: "10px" }}
           >
             Analyze

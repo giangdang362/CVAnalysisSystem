@@ -40,7 +40,6 @@ async def analyze_cv(file: UploadFile):
     # Đọc nội dung CV
     try:
         # Đọc trực tiếp từ file SpooledTemporaryFile
-        file_name = file.filename
         file_content = await file.read()  # Đọc nội dung file dưới dạng byte
         file_io = BytesIO(file_content)  # Chuyển byte thành stream để xử lý với hàm extract_text_from_file
         
@@ -66,16 +65,16 @@ async def analyze_cv(file: UploadFile):
             "count": 0,
         }
 
-    jd_texts = [jd["content"] for jd in jd_list]
+    jd_list_to_ranks = [{"content": jd["content"], "name": Path(jd["file_path"]).stem} for jd in jd_list]
 
     # So sánh CV với danh sách JD và xếp hạng
     try:
-        ranked_jds = rank_jds_with_cv(file_name, cv_text, jd_texts)
+        ranked_jds = rank_jds_with_cv(cv_text, jd_list_to_ranks)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to rank JDs with CV. Error: {str(e)}")
 
     return {
-        "message": "CV analyzed and uploaded successfully",
+        "message": "Successfully",
         "data": ranked_jds,
         "count": len(ranked_jds),
     }

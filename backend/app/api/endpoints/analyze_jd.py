@@ -64,16 +64,16 @@ async def analyze_jd(file: UploadFile):
             "count": 0,
         }
 
-    cv_texts = [cv["content"] for cv in cv_list]
+    cv_list_to_ranks = [{"content": cv["content"], "name": Path(cv["file_path"]).stem} for cv in cv_list]
 
     # So sánh JD với danh sách CV và xếp hạng
     try:
-        ranked_cvs = rank_cvs_with_jd(file.filename, jd_text, cv_texts)
+        ranked_cvs = rank_cvs_with_jd(file.filename, cv_list_to_ranks)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to rank CVs with JD. Error: {str(e)}")
 
     return {
-        "message": "JD analyzed and uploaded successfully",
+        "message": "Successfully",
         "data": ranked_cvs,
         "count": len(ranked_cvs),
     }

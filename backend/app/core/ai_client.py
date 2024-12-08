@@ -11,7 +11,7 @@ generation_config = {
     "temperature": 0.9,
     "top_p": 1,
     "top_k": 1,
-    "max_output_tokens": 2048,
+    "max_output_tokens": 1024*10,
 }
 
 def analyze_with_gemini(prompt: str) -> dict:
@@ -26,7 +26,7 @@ def analyze_with_gemini(prompt: str) -> dict:
     )
     
     # Prepare the prompt
-    prompt_parts = [prompt]
+    prompt_parts = [prompt, "Please put the 'Overall Match Score: [score]' in the begin Answer!"]
 
     # Generate content using the model
     response: GenerateContentResponse = model.generate_content(prompt_parts)

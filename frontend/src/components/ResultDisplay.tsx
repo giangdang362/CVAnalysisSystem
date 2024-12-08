@@ -8,17 +8,17 @@ interface Props {
 const ResultDisplay: React.FC<Props> = ({ result }) => {
   return (
     <div style={{ marginTop: "20px" }}>
-      <h3>Analysis Results</h3>
-      <p>{result.message}</p> {/* Hiển thị thông báo từ API */}
+      <h3>Analysis Results: {result.message}</h3> {/* Hiển thị thông báo từ API */}
       <p>Total Items: {result.count}</p> {/* Hiển thị số lượng kết quả */}
 
       <List
+        style={{marginTop: "24px"}}
         bordered
         dataSource={result.data} // Lấy danh sách kết quả xếp hạng
         renderItem={(item) => (
           <List.Item>
             <div>
-              <strong>{item.name}</strong>: {item.score} points {/* Tên và điểm số */}
+              <strong>{item.score}</strong> - {item.name} {/* Tên và điểm số */}
             </div>
             <p>{item.details}</p> {/* Chi tiết đánh giá */}
           </List.Item>
