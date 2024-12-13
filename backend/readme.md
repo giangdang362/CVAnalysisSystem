@@ -1,6 +1,8 @@
 # Active môi trường
 ```
 python -m env (folder_name)
+
+cd .\backend\
 .venv/Scripts/activate
 ```
 # Cài đặt tất cả các thư viện trong project bằng lệnh:
