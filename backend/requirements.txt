@@ -7,3 +7,6 @@ PyPDF2
 python-dotenv
 python-multipart
 google-generativeai
+psycopg2
+sqlalchemy
+alembic

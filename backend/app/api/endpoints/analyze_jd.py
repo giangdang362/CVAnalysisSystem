@@ -68,7 +68,7 @@ async def analyze_jd(file: UploadFile):
 
     # So sánh JD với danh sách CV và xếp hạng
     try:
-        ranked_cvs = rank_cvs_with_jd(file.filename, cv_list_to_ranks)
+        ranked_cvs = rank_cvs_with_jd(jd_text, cv_list_to_ranks)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to rank CVs with JD. Error: {str(e)}")
 

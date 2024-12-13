@@ -1,12 +1,12 @@
+# Active môi trường
+```
+python -m env (folder_name)
+.venv/Scripts/activate
+```
 # Cài đặt tất cả các thư viện trong project bằng lệnh:
 
 ```
-python -m env (folder_name)
 pip install -r requirements.txt
-```
-# Active môi trường
-```
-.venv/Scripts/activate
 ```
 # Tắt môi trường
 ```

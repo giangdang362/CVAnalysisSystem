@@ -1,0 +1,18 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres
+    container_name: ai-say-hi
+    restart: always
+    environment:
+      POSTGRES_USER: aisayhi
+      POSTGRES_PASSWORD: aisayhi
+      POSTGRES_DB: aisayhi
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:
