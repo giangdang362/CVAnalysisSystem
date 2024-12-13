@@ -1,21 +1,21 @@
+import { getApi } from "@/axios/method";
 import axios from "axios";
+import { IPokemonDetailResponse, IPokemonResponse } from "./JD/type";
 
 export const getPokemons = async () => {
   try {
-    const response = await axios.get("https://pokeapi.co/api/v2/pokemon");
+    const response = await getApi<IPokemonResponse>("/v2/pokemon");
     return response.data;
   } catch (err) {
     console.error(err);
-    return { error: "Failed to load data" };
   }
 };
 
 export const getPokemonsById = async (id: number) => {
   try {
-    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    const response = await getApi<IPokemonDetailResponse>(`/v2/pokemon/${id}`);
     return response.data;
   } catch (err) {
     console.error(err);
-    return { error: "Failed to load data" };
   }
 };

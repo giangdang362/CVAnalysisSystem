@@ -2,8 +2,8 @@
 
 import { ConfigProvider } from "antd";
 import { useEffect, useState } from "react";
-import { getPokemons, getPokemonsById } from "@/app/api/pokemons";
 
+import { getPokemons, getPokemonsById } from "@/app/api/pokemons";
 import ApiTable from "./api-table";
 
 type pokemonsTable = {
@@ -25,9 +25,10 @@ const TablePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const pokemons = await getPokemons();
+      if (!pokemons || !pokemons?.results) return;
       const pokemonsTable: pokemonsTable[] = [];
       await Promise.all(
-        pokemons.results.map(async (pokemon: any, index: number) => {
+        pokemons?.results?.map(async (pokemon: any, index: number) => {
           pokemonsTable[index] = {
             name: pokemon.name,
             key: index,
