@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```
 deactivate
 ```
-# Run 
+# Run backend
 ```
 uvicorn app.main:app --reload
 ```

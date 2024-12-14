@@ -43,6 +43,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# File upload folder
+UPLOAD_FOLDER = "uploaded_files"
+
 # Default route
 @app.get("/")
 async def root():
@@ -59,10 +62,7 @@ async def check_database_connection(db: Session = Depends(get_db)):
     except OperationalError as e:
         return {"status": "error", "message": str(e)}
 
-# File upload folder
-UPLOAD_FOLDER = "uploaded_files"
-
-@app.post("/cv", tags=["CV"])
+@app.post("/cv", tags=["CV Management"])
 async def add_cv(
     name: str,
     applicant_name: str,
@@ -104,13 +104,13 @@ async def add_cv(
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-@app.get("/cv", tags=["CV"])
+@app.get("/cv", tags=["CV Management"])
 async def get_all_cvs(db: Session = Depends(get_db)):
     """Get a list of all CVs"""
     cvs = db.query(CV).all()
-    return {"data": cvs}
+    return {"message": "success", "data": cvs, "count": len(cvs)}
 
-@app.post("/jd", tags=["JD"])
+@app.post("/jd", tags=["JD Management"])
 async def add_jd(
     name: str,
     company_name: str,
@@ -154,11 +154,37 @@ async def add_jd(
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-@app.get("/jd", tags=["JD"])
+@app.get("/jd", tags=["JD Management"])
 async def get_all_jds(db: Session = Depends(get_db)):
     """Get a list of all JDs"""
     jds = db.query(JD).all()
-    return {"data": jds}
+    return {"message": "success", "data": jds, "count": len(jds)}
+
+@app.post("/matching/cv-to-jds", tags=["Matching"])
+async def match_cv_to_jds(cv_id: int, db: Session = Depends(get_db)):
+    """Match a CV with JDs based on the role"""
+    # Fetch the CV by id
+    cv = db.query(CV).filter(CV.id == cv_id).first()
+    if not cv:
+        return {"message": "error", "detail": "CV not found"}
+
+    # Find JDs that match the CV's role
+    matching_jds = db.query(JD).filter(JD.role == cv.role).all()
+
+    return {"message": "success", "data": matching_jds, "count": len(matching_jds)}
+
+@app.post("/matching/jd-to-cvs", tags=["Matching"])
+async def match_jd_to_cvs(jd_id: int, db: Session = Depends(get_db)):
+    """Match a JD with CVs based on the role"""
+    # Fetch the JD by id
+    jd = db.query(JD).filter(JD.id == jd_id).first()
+    if not jd:
+        return {"message": "error", "detail": "JD not found"}
+
+    # Find CVs that match the JD's role
+    matching_cvs = db.query(CV).filter(CV.role == jd.role).all()
+
+    return {"message": "success", "data": matching_cvs, "count": len(matching_cvs)}
 
 # Run the application (only for testing purposes, not in production)
 if __name__ == "__main__":
