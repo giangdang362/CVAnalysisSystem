@@ -12,7 +12,6 @@ import {
 } from "antd";
 
 import { useModal } from "@/hooks/use-modal-store";
-import { UploadOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -29,25 +28,21 @@ const ModalComponent = () => {
     form.resetFields();
   };
 
-  const props: UploadProps = {
-    name: "file",
-    action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-    headers: {
-      authorization: "authorization-text",
-    },
-    onChange(info) {
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === "done") {
-        message.success(`${info.file.name} file uploaded successfully`);
-        form.setFieldValue("file_url", "this's a path file"); // handle get and set path file form response after upload
-      } else if (info.file.status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-        form.setFieldValue("file_url", "this's a path file"); // handle get and set path file form response after upload
-      }
-    },
-  };
+  const customizeRequiredMark: (
+    labelNode: React.ReactNode,
+    info: {
+      required: boolean;
+    }
+  ) => React.ReactNode = (label, { required }) => (
+    <>
+      {label}
+      {required ? (
+        <div className="flex items-center justify-center px-1 text-[#dc4c2c]">
+          *
+        </div>
+      ) : null}
+    </>
+  );
 
   return (
     <Modal
@@ -71,30 +66,31 @@ const ModalComponent = () => {
         onFinish={onFinish}
         variant={"filled"}
         onReset={onReset}
+        requiredMark={customizeRequiredMark}
       >
         <div className="flex gap-5">
           <div className="w-full">
             <Form.Item
-              label="Recruiter"
-              name="recruiter"
+              label="Job name"
+              name="jobname"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Input allowClear placeholder="input Recruiter" />
+              <Input allowClear placeholder="input Job name" />
             </Form.Item>
             <Form.Item
-              label="Applicant's name"
-              name="applicant_name"
+              label="Company name"
+              name="company_name"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Input allowClear placeholder="input Applicant's name" />
+              <Input allowClear placeholder="input Company name" />
             </Form.Item>
             <Form.Item
               label="Role"
@@ -116,67 +112,61 @@ const ModalComponent = () => {
               </Select>
             </Form.Item>
             <Form.Item
-              label="Education"
-              name="education"
+              label="Level (Seniority)"
+              name="level"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Input allowClear placeholder="Input Education" />
+              <Input allowClear placeholder="Input Level" />
             </Form.Item>
             <Form.Item
-              label="Expected salary"
-              name="expected_salary"
+              label="Language"
+              name="language"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Input allowClear placeholder="Input Expected salary" />
+              <Input allowClear placeholder="Input Language" />
             </Form.Item>
           </div>
           <div className="w-full">
             <Form.Item
-              label="Experience summary"
-              name="experience_summary"
+              label="Technical skills"
+              name="technical_skills"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <TextArea
-                allowClear
-                placeholder="Input Experience summary"
-                rows={8}
-              />
+              <Input allowClear placeholder="Input Technical skills" />
             </Form.Item>
             <Form.Item
-              label="Date added"
-              name="date_added"
+              label="Description"
+              name="description"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Input type="date" allowClear placeholder="input placeholder" />
+              <TextArea allowClear placeholder="Input Description" rows={5} />
             </Form.Item>
             <Form.Item
-              label="Upload CV"
-              name="file_url"
+              label="Requirements"
+              name="requirements"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Upload {...props}>
-                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-              </Upload>
+              <TextArea allowClear placeholder="Input Requirements" rows={5} />
             </Form.Item>
           </div>
         </div>

@@ -1,36 +1,63 @@
+import { APP_ROUTES } from "@/common/routes";
 import { ColumnsType } from "antd/es/table";
+import Link from "next/link";
 
-export const columns = (): ColumnsType<API.CvItem> => {
+export const columns = (): ColumnsType<API.JdItem> => {
   return [
     {
-      title: 'name',
-      dataIndex: 'name',
-      key: 'name',
-      width: '10%',
+      title: "#",
+      // dataIndex: "name",
+      key: "#",
+      align: "center",
     },
     {
-      title: 'applicant_name',
-      dataIndex: 'applicant_name',
-      key: 'applicant_name',
-      width: '20%',
-    },
-    {
-      title: 'role',
-      dataIndex: 'role',
-      key: 'role',
-      width: '20%',
+      title: "Job name",
+      dataIndex: "name",
+      key: "name",
       render: (_, original) => (
-        <div>{original.role}</div>
-      )
+        <Link
+          className="!text-blue-500"
+          href={`${APP_ROUTES.JD.path}/${original?.name}`}
+        >
+          {original?.name}
+        </Link>
+      ),
     },
     {
-      title: 'recruiter',
-      dataIndex: 'recruiter',
-      key: 'recruiter',
-      width: '20%',
-      render: (_, original) => (
-        <div>{original.recruiter}</div>
-      )
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      render: (_, original) => <div>{original?.role}</div>,
     },
-  ]
-}
+    {
+      title: "Company",
+      dataIndex: "company_name",
+      key: "company_name",
+    },
+    {
+      title: "Level",
+      dataIndex: "level",
+      key: "level",
+      render: (_, original) => <div>{original?.level}</div>,
+    },
+    {
+      title: "Language",
+      // dataIndex: "address",
+      key: "Language",
+      align: "center",
+    },
+    {
+      title: "Technical skills",
+      // dataIndex: "address",
+      key: "expectedSalary",
+      align: "center",
+    },
+    {
+      title: "Job Description",
+      // dataIndex: "address",
+      key: "Job Description",
+      width: "30%",
+      align: "center",
+    },
+  ];
+};

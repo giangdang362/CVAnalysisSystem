@@ -1,4 +1,6 @@
+import { APP_ROUTES } from "@/common/routes";
 import { ColumnsType } from "antd/es/table";
+import Link from "next/link";
 
 export const columns = (): ColumnsType<API.JdItem> => {
   return [
@@ -12,6 +14,14 @@ export const columns = (): ColumnsType<API.JdItem> => {
       title: "name",
       dataIndex: "name",
       key: "name",
+      render: (_, original) => (
+        <Link
+          className="!text-blue-500"
+          href={`${APP_ROUTES.CV.path}/${original?.name}`}
+        >
+          {original?.name}
+        </Link>
+      ),
     },
     {
       title: "company_name",
@@ -22,13 +32,13 @@ export const columns = (): ColumnsType<API.JdItem> => {
       title: "role",
       dataIndex: "role",
       key: "role",
-      render: (_, original) => <div>{original.role}</div>,
+      render: (_, original) => <div>{original?.role}</div>,
     },
     {
       title: "level",
       dataIndex: "level",
       key: "level",
-      render: (_, original) => <div>{original.level}</div>,
+      render: (_, original) => <div>{original?.level}</div>,
     },
     {
       title: "Education",

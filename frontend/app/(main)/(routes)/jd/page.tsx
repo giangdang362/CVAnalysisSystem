@@ -1,45 +1,83 @@
 "use client";
 
-import { ConfigProvider, message, Table } from "antd";
+import { Button, ConfigProvider, message, Modal, Table } from "antd";
 import { useEffect, useState } from "react";
-import { getCVList } from "@/src/services/cv";
+import { getJDList } from "@/src/services/jd";
+import { PlusOutlined } from "@ant-design/icons";
+
 import { columns } from "./column";
+import { useModal } from "@/hooks/use-modal-store";
+import ModalComponent from "./modal";
+
+const dataSource = [
+  {
+    key: "1",
+    name: "Job 001",
+    age: 32,
+    address: "10 Downing Street",
+  },
+  {
+    key: "2",
+    name: "Job 002",
+    age: 42,
+    address: "10 Downing Street",
+  },
+];
 
 const TablePage = () => {
+  const [jdRes, setJDRes] = useState<API.ResponseGetListJD>();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const [cvRes, setCVRes] = useState<API.ResponseGetListCV>();
-  const [loading, setLoading] = useState<boolean>(false);  // Trạng thái loading cho button
+  const { onOpen } = useModal();
+
+  const showModal = () => {
+    onOpen();
+  };
 
   useEffect(() => {
-    // Fetch CV list on component mount
-    const fetchCVs = async () => {
-      setLoading(true)
+    // Fetch JD list on component mount
+    const fetchJDs = async () => {
+      setLoading(true);
       try {
-        const res = await getCVList();
-        setCVRes(res);
+        const res = await getJDList();
+        setJDRes(res);
       } catch (error) {
-        message.error("Failed to fetch CV List.");
+        message.error("Failed to fetch JD List.");
       }
       setLoading(false);
     };
-    fetchCVs();
+    fetchJDs();
   }, []);
 
   return (
     <ConfigProvider
       theme={{
         token: {
-          motion: false,
+          motion: true,
         },
       }}
     >
-      <div>
-        <Table
-          loading={loading}
-          columns={columns()}
-          dataSource={cvRes?.data}
-        />
+      <div className="flex justify-between items-center my-5">
+        <div className="font-bold text-2xl">List of JDs</div>
+        <Button
+          type="primary"
+          shape="round"
+          icon={<PlusOutlined />}
+          size={"middle"}
+          onClick={showModal}
+        >
+          New Job
+        </Button>
       </div>
+
+      <Table
+        loading={loading}
+        columns={columns()}
+        // dataSource={jdRes?.data}
+        dataSource={dataSource}
+      />
+
+      <ModalComponent />
     </ConfigProvider>
   );
 };

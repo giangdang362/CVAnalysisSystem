@@ -11,3 +11,9 @@ export const useModal = create<ModalData>((set) => ({
   onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),
 }));
+
+export const useModalJDDetail = create<ModalData>((set) => ({
+  isOpen: false,
+  onOpen: () => set({ isOpen: true }),
+  onClose: () => set({ isOpen: false }),
+}));

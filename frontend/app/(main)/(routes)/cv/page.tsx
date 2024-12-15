@@ -9,6 +9,21 @@ import { columns } from "./column";
 import { useModal } from "@/hooks/use-modal-store";
 import ModalComponent from "./modal";
 
+const dataSource = [
+  {
+    key: "1",
+    name: "Mike",
+    age: 32,
+    address: "10 Downing Street",
+  },
+  {
+    key: "2",
+    name: "John dog",
+    age: 42,
+    address: "10 Downing Street",
+  },
+];
+
 const TablePage = () => {
   const [jdRes, setJDRes] = useState<API.ResponseGetListJD>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -55,7 +70,12 @@ const TablePage = () => {
         </Button>
       </div>
 
-      <Table loading={loading} columns={columns()} dataSource={jdRes?.data} />
+      <Table
+        loading={loading}
+        columns={columns()}
+        // dataSource={jdRes?.data}
+        dataSource={dataSource}
+      />
 
       <ModalComponent />
     </ConfigProvider>
