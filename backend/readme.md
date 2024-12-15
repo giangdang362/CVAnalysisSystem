@@ -1,7 +1,7 @@
 # Active môi trường
 ```
-python -m env (folder_name)
-.venv/Scripts/activate
+python -m venv venv
+venv/Scripts/activate
 ```
 # Cài đặt tất cả các thư viện trong project bằng lệnh:
 

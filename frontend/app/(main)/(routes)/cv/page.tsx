@@ -1,25 +1,38 @@
 "use client";
 
-import { Button, ConfigProvider, Modal } from "antd";
-
-import SimpleTable from "./simple-table";
+import { Button, ConfigProvider, message, Modal, Table } from "antd";
+import { useEffect, useState } from "react";
+import { getJDList } from "@/src/services/jd";
 import { PlusOutlined } from "@ant-design/icons";
-import { useState } from "react";
+
+import { columns } from "./column";
+import { useModal } from "@/hooks/use-modal-store";
+import ModalComponent from "./modal";
 
 const TablePage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [jdRes, setJDRes] = useState<API.ResponseGetListJD>();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const { onOpen } = useModal();
 
   const showModal = () => {
-    setIsModalOpen(true);
+    onOpen();
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+  useEffect(() => {
+    // Fetch JD list on component mount
+    const fetchJDs = async () => {
+      setLoading(true);
+      try {
+        const res = await getJDList();
+        setJDRes(res);
+      } catch (error) {
+        message.error("Failed to fetch JD List.");
+      }
+      setLoading(false);
+    };
+    fetchJDs();
+  }, []);
 
   return (
     <ConfigProvider
@@ -42,18 +55,9 @@ const TablePage = () => {
         </Button>
       </div>
 
-      <SimpleTable />
+      <Table loading={loading} columns={columns()} dataSource={jdRes?.data} />
 
-      <Modal
-        title="Basic Modal"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-      </Modal>
+      <ModalComponent />
     </ConfigProvider>
   );
 };
