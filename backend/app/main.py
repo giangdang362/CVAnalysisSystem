@@ -9,14 +9,15 @@ from datetime import datetime
 from app.models import CV, JD  # Assuming models are in app.models
 from dotenv import load_dotenv
 from docx import Document  # To handle docx files
-from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT  # For Claude API
+from anthropic import HUMAN_PROMPT, AI_PROMPT  # For Claude API
+from app.bedrock_wrapper import invoke_claude
+import re
 
 # Load environment variables
 load_dotenv()
 
 # Database connection settings
 DATABASE_URL = os.getenv("DATABASE_URL")
-anthropic = Anthropic(api_key=os.getenv("API_KEY"))
 
 # Initialize database engine and session
 engine = create_engine(DATABASE_URL, echo=True)
@@ -55,16 +56,31 @@ PROMPT_FILE = "app/configs/prompt_guide.docx"
 async def root():
     return {"message": "Welcome to CV and JD Analysis System"}
 
-# Health check route for database connection
-@app.get("/health/db", tags=["Health Check"])
-async def check_database_connection(db: Session = Depends(get_db)):
-    """Check if the database connection is working"""
+@app.get("/cv/{id}", tags=["CV Management"])
+async def get_cv_by_id(id: int, db: Session = Depends(get_db)):
+    """
+    Get details of a specific CV by ID.
+    """
     try:
-        # Execute a simple query to test the connection
-        db.execute(text("SELECT 1"))
-        return {"status": "success", "message": "Database connection is working"}
-    except OperationalError as e:
-        return {"status": "error", "message": str(e)}
+        cv = db.query(CV).filter(CV.id == id).first()
+        if not cv:
+            raise HTTPException(status_code=404, detail="CV not found")
+        return {"message": "success", "data": cv}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/jd/{id}", tags=["JD Management"])
+async def get_jd_by_id(id: int, db: Session = Depends(get_db)):
+    """
+    Get details of a specific JD by ID.
+    """
+    try:
+        jd = db.query(JD).filter(JD.id == id).first()
+        if not jd:
+            raise HTTPException(status_code=404, detail="JD not found")
+        return {"message": "success", "data": jd}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/cv", tags=["CV Management"])
 async def add_cv(
@@ -190,18 +206,6 @@ async def match_jd_to_cvs(jd_id: int, db: Session = Depends(get_db)):
 
     return {"message": "success", "data": matching_cvs, "count": len(matching_cvs)}
 
-# Helper function to read docx file
-def read_docx(file_path: str) -> str:
-    try:
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File does not exist: {file_path}")
-        content = Document(file_path)
-        text = "\n".join([para.text for para in content.paragraphs])
-        return text
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to read docx file: {e}")
-
-
 @app.post("/matching/cv-to-jds/rank", tags=["Matching"])
 async def rank_cv_against_jds(
     cv_id: int, jd_ids: List[int], db: Session = Depends(get_db)
@@ -227,72 +231,172 @@ async def rank_cv_against_jds(
             raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
         cv_text = read_docx(cv.path_file)
 
-        # Prepare JD texts
-        jd_inputs = []
-        for i, jd in enumerate(jds):
+        results = []
+
+        # Process each JD individually
+        for jd in jds:
             if not os.path.exists(jd.path_file):
                 raise HTTPException(status_code=404, detail=f"JD file not found at: {jd.path_file}")
+
             jd_text = read_docx(jd.path_file)
-            jd_inputs.append(
-                f"JD {i+1}:\nCompany: {jd.company_name}, Role: {jd.role}, Level: {jd.level}, Skills: {jd.technical_skill}\n{jd_text}"
-            )
-        jd_inputs = "\n\n".join(jd_inputs)
 
-        # Prepare input for Claude API
-        claude_input = f"""{HUMAN_PROMPT}
-        You are tasked with ranking a CV against multiple Job Descriptions (JDs) based on the following criteria:
-        - Tech stack
-        - Experience
-        - Language
-        - Leadership
+            # Prepare input for Claude API
+            prompt_input = f"""{HUMAN_PROMPT}
+            You are tasked with ranking a CV against a Job Description (JD) based on the following criteria:
+            - Tech stack
+            - Experience
+            - Language
+            - Leadership
 
-        Here is the input:
-        - CV:
-        {cv_text}
-        - JDs:
-        {jd_inputs}
-        - Evaluation criteria:
-        {prompt_text}
+            Here is the input:
+            - CV:
+            {cv_text}
+            - JD:
+            Company: {jd.company_name}, Role: {jd.role}, Level: {jd.level}, Skills: {jd.technical_skill}
+            {jd_text}
+            - Evaluation criteria:
+            {prompt_text}
 
-        For each JD, provide the following:
-        - Overall_score: Overall match score between the CV and JD.
-        - Detail_score: A breakdown of the score into the following:
-          - Tech stack
-          - Experience
-          - Language
-          - Leadership
-        Provide a JSON-formatted response.
-        {AI_PROMPT}"""
+            Provide the following:
+            - Overall_score: Overall match score between the CV and JD.
+            Provide a JSON-formatted response.
+            {AI_PROMPT}"""
 
-        # Call Claude API
-        response = anthropic.completions.create(
-            model="claude-3.5-sonnet-20240620",
-            max_tokens=2000,
-            prompt=claude_input
-        )
+            # Call Claude API
+            response = invoke_claude(prompt_input)
 
-        # Extract Overall_score using Regex
-        response_text = response.completion
-        overall_scores = re.findall(r"Overall_score: (\d+)", response_text)
+            # Extract Overall_score using Regex
+            overall_score_match = re.search(r"Overall_score: (\d+)", response)
+            overall_score = int(overall_score_match.group(1)) if overall_score_match else 0
 
-        # Parse Response
-        results = []
-        for i, jd in enumerate(jds):
             result = {
                 "jd_name": jd.name,
                 "company_name": jd.company_name,
                 "role": jd.role,
                 "level": jd.level,
                 "technical_skill": jd.technical_skill,
-                "overall_score": overall_scores[i] if i < len(overall_scores) else "N/A",
-                "details": "Parsed detail scores here"
+                "overall_score": overall_score
             }
             results.append(result)
+
+        # Sort results by overall_score in descending order
+        results.sort(key=lambda x: x["overall_score"], reverse=True)
 
         return {"message": "success", "data": results, "count": len(results)}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/matching/jd-to-cvs/rank", tags=["Matching"])
+async def rank_jd_against_cvs(
+    jd_id: int, cv_ids: List[int], db: Session = Depends(get_db)
+):
+    """
+    Rank a JD against a list of CVs based on scoring criteria defined in a prompt file.
+    """
+    try:
+        # Fetch JD details
+        jd = db.query(JD).filter(JD.id == jd_id).first()
+        if not jd:
+            raise HTTPException(status_code=404, detail="JD not found")
+
+        cvs = db.query(CV).filter(CV.id.in_(cv_ids)).all()
+        if not cvs:
+            raise HTTPException(status_code=404, detail="No CVs found with the provided IDs")
+
+        # Read the Prompt file
+        prompt_text = read_docx(PROMPT_FILE)
+
+        # Read JD file
+        if not os.path.exists(jd.path_file):
+            raise HTTPException(status_code=404, detail=f"JD file not found at: {jd.path_file}")
+        jd_text = read_docx(jd.path_file)
+
+        results = []
+
+        # Process each CV individually
+        for cv in cvs:
+            if not os.path.exists(cv.path_file):
+                raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
+
+            # Determine file type and read content
+            if cv.path_file.endswith(".docx"):
+                cv_text = read_docx(cv.path_file)
+            elif cv.path_file.endswith(".pdf"):
+                cv_text = read_pdf(cv.path_file)
+            else:
+                raise HTTPException(status_code=400, detail="Unsupported file type for CV")
+
+            # Prepare input for Claude API
+            prompt_input = f"""{HUMAN_PROMPT}
+            You are tasked with ranking a Job Description (JD) against a CV based on the following criteria:
+            - Tech stack
+            - Experience
+            - Language
+            - Leadership
+
+            Here is the input:
+            - JD:
+            Company: {jd.company_name}, Role: {jd.role}, Level: {jd.level}, Skills: {jd.technical_skill}
+            {jd_text}
+            - CV:
+            {cv_text}
+            - Evaluation criteria:
+            {prompt_text}
+
+            Provide the following:
+            - Overall_score: Overall match score between the JD and CV.
+            Provide a JSON-formatted response.
+            {AI_PROMPT}"""
+
+            # Call Claude API
+            response = invoke_claude(prompt_input)
+
+            # Extract Overall_score using Regex
+            overall_score_match = re.search(r"Overall_score: (\d+)", response)
+            overall_score = int(overall_score_match.group(1)) if overall_score_match else 0
+
+            result = {
+                "cv_name": cv.name,
+                "applicant_name": cv.applicant_name,
+                "role": cv.role,
+                "expect_salary": cv.expect_salary,
+                "education": cv.education,
+                "overall_score": overall_score
+            }
+            results.append(result)
+
+        # Sort results by overall_score in descending order
+        results.sort(key=lambda x: x["overall_score"], reverse=True)
+
+        return {"message": "success", "data": results, "count": len(results)}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Helper function to read docx file
+def read_docx(file_path: str) -> str:
+    try:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File does not exist: {file_path}")
+        content = Document(file_path)
+        text = "\n".join([para.text for para in content.paragraphs])
+        return text
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read docx file: {e}")
+
+# Helper function to read pdf file
+def read_pdf(file_path: str) -> str:
+    try:
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File does not exist: {file_path}")
+        reader = PdfReader(file_path)
+        text = "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+        return text
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to read PDF file: {e}")
+
 
 # Run the application (only for testing purposes, not in production)
 if __name__ == "__main__":
