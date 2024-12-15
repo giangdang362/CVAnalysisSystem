@@ -1,68 +1,29 @@
 "use client";
 
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message, Table } from "antd";
 import { useEffect, useState } from "react";
-import { getPokemons, getPokemonsById } from "@/app/api/pokemons";
-
-import ApiTable from "./api-table";
-
-type pokemonsTable = {
-  name: string;
-  key: Number;
-  height: Number;
-  weight: Number;
-  photo: string;
-  hp: number;
-  attack: number;
-  defense: number;
-  speed: number;
-};
+import { getJDList } from "@/src/services/jd";
+import { columns } from "./column";
 
 const TablePage = () => {
-  const [pokemonsTable, setPokemonsTable] = useState<pokemonsTable[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const [jdRes, setJDRes] = useState<API.ResponseGetListJD>();
+  const [loading, setLoading] = useState<boolean>(false);  // Trạng thái loading cho button
 
   useEffect(() => {
-    const fetchData = async () => {
-      const pokemons = await getPokemons();
-      const pokemonsTable: pokemonsTable[] = [];
-      await Promise.all(
-        pokemons.results.map(async (pokemon: any, index: number) => {
-          pokemonsTable[index] = {
-            name: pokemon.name,
-            key: index,
-            height: 0,
-            weight: 0,
-            photo: "",
-            hp: 0,
-            attack: 0,
-            defense: 0,
-            speed: 0,
-          };
-          const pokemonDetail = await getPokemonsById(index + 1);
-          pokemonsTable[index].height = pokemonDetail.height;
-          pokemonsTable[index].weight = pokemonDetail.weight;
-          pokemonsTable[index].photo =
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-            pokemonDetail.sprites.front_default.split(
-              "https://raw.githubusercontent.com/PokeAPI/sprites/master"
-            )[
-              pokemonDetail.sprites.front_default.split(
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master"
-              ).length - 1
-            ];
-
-          pokemonsTable[index].hp = pokemonDetail.stats[0].base_stat;
-          pokemonsTable[index].attack = pokemonDetail.stats[1].base_stat;
-          pokemonsTable[index].defense = pokemonDetail.stats[2].base_stat;
-          pokemonsTable[index].speed = pokemonDetail.stats[5].base_stat;
-        })
-      );
-      setPokemonsTable(pokemonsTable);
-      setIsLoading(false);
+    // Fetch JD list on component mount
+    const fetchJDs = async () => {
+      setLoading(true)
+      try {
+        const res = await getJDList();
+        setJDRes(res);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        message.error("Failed to fetch JD List.");
+      }
+      setLoading(false);
     };
-
-    fetchData();
+    fetchJDs();
   }, []);
 
   return (
@@ -74,8 +35,11 @@ const TablePage = () => {
       }}
     >
       <div>
-        <span className="ml-1 mb-1">api table</span>
-        <ApiTable dataSource={pokemonsTable} isLoading={isLoading} />
+        <Table
+          loading={loading}
+          columns={columns()}
+          dataSource={jdRes?.data}
+        />
       </div>
     </ConfigProvider>
   );
