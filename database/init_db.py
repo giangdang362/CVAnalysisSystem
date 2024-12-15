@@ -2,6 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from sqlalchemy.types import Enum
 
 Base = declarative_base()
 
@@ -22,7 +23,7 @@ class CV(Base):
     path_file = Column(String)
     expect_salary = Column(Integer, index=True)
     education = Column(String)
-    role = Column(String, index=True)
+    role = Column(Enum("Developer", "UIUX", "BA", name="role_type"), nullable=False)
     recruiter = Column(String)
     experience_summary = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -36,7 +37,7 @@ class JD(Base):
     name = Column(String)
     path_file = Column(String)
     company_name = Column(String)
-    role = Column(String, index=True)
+    role = Column(Enum("Developer", "UIUX", "BA", name="role_type"), nullable=False)
     level = Column(String, index=True)
     languages = Column(String, index=True)
     technical_skill = Column(String, index=True)

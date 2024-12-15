@@ -32,6 +32,10 @@ docker pull postgres
 systemctl daemon-reload
 systemctl restart docker
 
+# Truy cập db
+
+docker exec -it ai-say-hi psql -U aisayhi -d aisayhi
+
 # Kiểm tra Logs nếu gặp lỗi về docker
 
 docker logs ai-say-hi
