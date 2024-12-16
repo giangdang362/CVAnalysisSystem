@@ -2,7 +2,7 @@
 
 import { Modal, Table, TableProps } from "antd";
 
-import { useModalJDDetail } from "@/hooks/use-modal-store";
+import { useModalDetail } from "@/hooks/use-modal-store";
 
 interface DataType {
   key: string;
@@ -83,8 +83,8 @@ const data: DataType[] = [
   },
 ];
 
-const ModalJDDetail = () => {
-  const { isOpen, onClose } = useModalJDDetail();
+const ModalCVDetail = () => {
+  const { isOpen, onClose } = useModalDetail();
 
   return (
     <Modal
@@ -106,4 +106,4 @@ const ModalJDDetail = () => {
   );
 };
 
-export default ModalJDDetail;
+export default ModalCVDetail;

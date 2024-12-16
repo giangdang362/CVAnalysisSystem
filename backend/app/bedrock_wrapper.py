@@ -93,7 +93,7 @@ def print_model_details(model):
     print("=" * 42)
 def invoke_claude(
         prompt,
-        model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
+        model_id="anthropic.claude-3-5-sonnet-20241022-v2:0",
         max_tokens=1024
       ):     
     # Initialize the Bedrock client

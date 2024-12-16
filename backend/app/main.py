@@ -231,6 +231,8 @@ async def rank_cv_against_jds(
             raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
         cv_text = read_docx(cv.path_file)
 
+        print(cv_text)
+
         results = []
 
         # Process each JD individually

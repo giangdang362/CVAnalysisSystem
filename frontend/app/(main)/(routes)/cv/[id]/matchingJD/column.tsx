@@ -1,12 +1,11 @@
-import { APP_ROUTES } from "@/common/routes";
 import { ColumnsType } from "antd/es/table";
-import Link from "next/link";
 
-export const columns = (): ColumnsType<API.JdItem> => {
+export const columns = (
+  onOpen: () => void
+): ColumnsType<API.JdItem> => {
   return [
     {
       title: "#",
-      // dataIndex: "name",
       key: "#",
       align: "center",
       render: (_, __, index) => <span>{index + 1}</span>,
@@ -15,31 +14,35 @@ export const columns = (): ColumnsType<API.JdItem> => {
       title: "Job name",
       dataIndex: "name",
       key: "name",
+      align: "center",
       render: (_, original) => (
-        <Link
-          className="!text-blue-500"
-          href={`${APP_ROUTES.JD.path}/${original?.id}`}
+        <div
+          className="text-blue-500 cursor-pointer hover:text-blue-700"
+          onClick={onOpen}
         >
           {original?.name}
-        </Link>
+        </div>
       ),
     },
     {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      align: "center",
       render: (_, original) => <div>{original?.role}</div>,
     },
     {
-      title: "Company",
+      title: "Company name",
       dataIndex: "company_name",
       key: "company_name",
+      align: "center",
     },
     {
-      title: "Level",
-      dataIndex: "level",
-      key: "level",
-      render: (_, original) => <div>{original?.level}</div>,
+      title: "role",
+      dataIndex: "role",
+      key: "role",
+      align: "center",
+      render: (_, original) => <div>{original?.role}</div>,
     },
     {
       title: "Language",
@@ -48,7 +51,7 @@ export const columns = (): ColumnsType<API.JdItem> => {
       align: "center",
     },
     {
-      title: "Technical skills",
+      title: "Techstack",
       dataIndex: "technical_skill",
       key: "technical_skill",
       align: "center",

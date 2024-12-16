@@ -4,11 +4,8 @@ import {
   Button,
   Form,
   Input,
-  message,
   Modal,
   Select,
-  Upload,
-  UploadProps,
 } from "antd";
 
 import { useModal } from "@/hooks/use-modal-store";
@@ -16,7 +13,7 @@ import { useModal } from "@/hooks/use-modal-store";
 const { Option } = Select;
 const { TextArea } = Input;
 
-const ModalComponent = () => {
+const CreateUpdateModal = () => {
   const { isOpen, onClose } = useModal();
   const [form] = Form.useForm();
 
@@ -46,7 +43,7 @@ const ModalComponent = () => {
 
   return (
     <Modal
-      title="Basic Modal"
+      title="Add new JD"
       open={isOpen}
       onOk={() => {
         onClose();
@@ -180,4 +177,4 @@ const ModalComponent = () => {
   );
 };
 
-export default ModalComponent;
+export default CreateUpdateModal;

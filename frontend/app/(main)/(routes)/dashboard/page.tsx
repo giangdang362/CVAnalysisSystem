@@ -1,5 +1,5 @@
-const ProfilePage = () => {
-  return <div>Hello mấy con gà</div>;
+const Dashboard = () => {
+  return <div>Welcome!</div>;
 };
 
-export default ProfilePage;
+export default Dashboard;

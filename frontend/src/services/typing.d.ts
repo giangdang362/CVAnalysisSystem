@@ -4,14 +4,30 @@
 declare namespace API {
 
   type ResponseGetListCV = {
-    message?: string;
-    data?: CvItem[];
-    count?: number;
+    message: string;
+    data: CvItem[];
+    count: number;
   }
   type ResponseGetListJD = {
-    message?: string;
-    data?: JdItem[];
-    count?: number;
+    message: string;
+    data: JdItem[];
+    count: number;
+  }
+
+  type ResponseCvDetail = {
+    message: string;
+    data: CvItem;
+  }
+
+  type ResponseJdDetail = {
+    message: string;
+    data: JdItem;
+  }
+
+  type ResponseMatchingCvToJds = {
+    message: string;
+    data: JdItem[];
+    count: number;
   }
 
   type CvItem = {
@@ -33,12 +49,13 @@ declare namespace API {
     company_name?: string;
     path_file?: string;
     languages?: string;
-    requirement?: number;
+    requirement?: string;
     role?: string;
     level?: string;
     technical_skill?: string;
     description?: string;
     created_at?: string;
     updated_at?: string;
+    overall_score?: number;
   }
 }

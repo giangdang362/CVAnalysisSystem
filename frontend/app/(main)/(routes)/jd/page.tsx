@@ -1,31 +1,16 @@
 "use client";
 
-import { Button, ConfigProvider, message, Modal, Table } from "antd";
+import { Button, ConfigProvider, message, Table } from "antd";
 import { useEffect, useState } from "react";
-import { getJDList } from "@/src/services/jd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import { columns } from "./column";
 import { useModal } from "@/hooks/use-modal-store";
-import ModalComponent from "./modal";
-
-const dataSource = [
-  {
-    key: "1",
-    name: "Job 001",
-    age: 32,
-    address: "10 Downing Street",
-  },
-  {
-    key: "2",
-    name: "Job 002",
-    age: 42,
-    address: "10 Downing Street",
-  },
-];
+import CreateUpdateModal from "./CreateUpdateModal";
+import { getJDList } from "@/src/services/jd";
 
 const TablePage = () => {
-  const [jdRes, setJDRes] = useState<API.ResponseGetListJD>();
+  const [res, setRes] = useState<API.ResponseGetListJD>();
   const [loading, setLoading] = useState<boolean>(false);
 
   const { onOpen } = useModal();
@@ -35,18 +20,17 @@ const TablePage = () => {
   };
 
   useEffect(() => {
-    // Fetch JD list on component mount
-    const fetchJDs = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
         const res = await getJDList();
-        setJDRes(res);
+        setRes(res);
       } catch (error) {
-        message.error("Failed to fetch JD List.");
+        message.error("Error. Please try again!");
       }
       setLoading(false);
     };
-    fetchJDs();
+    fetchData();
   }, []);
 
   return (
@@ -58,7 +42,7 @@ const TablePage = () => {
       }}
     >
       <div className="flex justify-between items-center my-5">
-        <div className="font-bold text-2xl">List of JDs</div>
+        <div className="font-bold text-2xl">List of CVs</div>
         <Button
           type="primary"
           shape="round"
@@ -66,18 +50,16 @@ const TablePage = () => {
           size={"middle"}
           onClick={showModal}
         >
-          New Job
+          Add new JD
         </Button>
       </div>
 
       <Table
         loading={loading}
         columns={columns()}
-        // dataSource={jdRes?.data}
-        dataSource={dataSource}
+        dataSource={res?.data}
       />
-
-      <ModalComponent />
+      <CreateUpdateModal />
     </ConfigProvider>
   );
 };

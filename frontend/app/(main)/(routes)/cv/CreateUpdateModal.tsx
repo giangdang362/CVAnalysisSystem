@@ -51,7 +51,7 @@ const ModalComponent = () => {
 
   return (
     <Modal
-      title="Basic Modal"
+      title="Add new CV"
       open={isOpen}
       onOk={() => {
         onClose();
@@ -83,7 +83,7 @@ const ModalComponent = () => {
                 },
               ]}
             >
-              <Input allowClear placeholder="input Recruiter" />
+              <Input allowClear placeholder="Enter Recruiter" />
             </Form.Item>
             <Form.Item
               label="Applicant's name"
@@ -94,7 +94,7 @@ const ModalComponent = () => {
                 },
               ]}
             >
-              <Input allowClear placeholder="input Applicant's name" />
+              <Input allowClear placeholder="Enter Applicant's name" />
             </Form.Item>
             <Form.Item
               label="Role"
@@ -106,7 +106,7 @@ const ModalComponent = () => {
               ]}
             >
               <Select
-                placeholder="Select a option and change input text above"
+                placeholder="Select role"
                 allowClear
                 showSearch
               >
@@ -124,7 +124,7 @@ const ModalComponent = () => {
                 },
               ]}
             >
-              <Input allowClear placeholder="Input Education" />
+              <Input allowClear placeholder="Enter Education" />
             </Form.Item>
             <Form.Item
               label="Expected salary"
@@ -135,7 +135,7 @@ const ModalComponent = () => {
                 },
               ]}
             >
-              <Input allowClear placeholder="Input Expected salary" />
+              <Input allowClear placeholder="Enter Expected salary" />
             </Form.Item>
           </div>
           <div className="w-full">
@@ -150,7 +150,7 @@ const ModalComponent = () => {
             >
               <TextArea
                 allowClear
-                placeholder="Input Experience summary"
+                placeholder="Enter Experience summary"
                 rows={8}
               />
             </Form.Item>
@@ -163,7 +163,7 @@ const ModalComponent = () => {
                 },
               ]}
             >
-              <Input type="date" allowClear placeholder="input placeholder" />
+              <Input type="date" allowClear placeholder="Enter placeholder" />
             </Form.Item>
             <Form.Item
               label="Upload CV"

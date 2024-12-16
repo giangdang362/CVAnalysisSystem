@@ -1,9 +1,9 @@
-import { APP_ROUTES } from "@/common/routes";
 import { FormatDateTime } from "@/util/common";
 import { ColumnsType } from "antd/es/table";
-import Link from "next/link";
 
-export const columns = (): ColumnsType<API.CvItem> => {
+export const columns = (
+  onOpen: () => void
+): ColumnsType<API.CvItem> => {
   return [
     {
       title: "#",
@@ -16,18 +16,13 @@ export const columns = (): ColumnsType<API.CvItem> => {
       dataIndex: "name",
       key: "name",
       render: (_, original) => (
-        <Link
+        <div
           className="!text-blue-500"
-          href={`${APP_ROUTES.CV.path}/${original?.id}`}
+          onClick={onOpen}
         >
           {original?.name}
-        </Link>
+        </div>
       ),
-    },
-    {
-      title: "Company Name",
-      dataIndex: "company_name",
-      key: "company_name",
     },
     {
       title: "Role",
@@ -64,7 +59,7 @@ export const columns = (): ColumnsType<API.CvItem> => {
       dataIndex: "created_at",
       key: "created_at",
       align: "center",
-      render: (_,original) => <>{FormatDateTime(original.created_at)}</>
+      render: (_, original) => <>{FormatDateTime(original.created_at)}</>
     },
   ];
 };

@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 deactivate
 ```
-# Run 
+# Run
 ```
 uvicorn app.main:app --reload
 ```
