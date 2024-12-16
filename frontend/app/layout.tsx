@@ -3,7 +3,7 @@ import { Open_Sans } from "next/font/google";
 import "./globals.css";
 
 import StyledComponentsRegistry from "@/theme/AntdRegistry";
-import { HandleOnComplete } from "@/src/lib/router-events";
+import { HandleOnComplete } from "@/lib/router-events";
 import ThemeProvider from "@/theme/theme-provider";
 
 const font = Open_Sans({ subsets: ["latin"] });

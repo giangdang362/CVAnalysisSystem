@@ -9,7 +9,7 @@ import {
 import { ConfigProvider, theme } from "antd";
 
 import { useSettingStore } from "@/hooks/use-setting-store";
-import { getItem } from "@/src/lib/utils";
+import { getItem } from "@/lib/utils";
 
 import { StorageEnum, ThemeMode } from "@/types";
 

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button, Form, Input, ConfigProvider, Divider } from "antd";
 
-import { onStart } from "@/src/lib/router-events/events";
+import { onStart } from "@/lib/router-events/events";
 import { useSettingStore } from "@/hooks/use-setting-store";
 import { useThemeToken } from "@/theme/use-theme-token";
 

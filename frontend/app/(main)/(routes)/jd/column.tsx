@@ -1,4 +1,4 @@
-import { APP_ROUTES } from "@/configs/routes";
+import { APP_ROUTES } from "@/common/routes";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 

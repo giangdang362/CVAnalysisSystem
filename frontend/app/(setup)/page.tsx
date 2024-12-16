@@ -1,7 +1,7 @@
 "use client";
 
-import { APP_ROUTES } from "@/configs/routes";
-import { cn } from "@/src/lib/utils";
+import { APP_ROUTES } from "@/common/routes";
+import { cn } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
 const SetupPage = () => {
