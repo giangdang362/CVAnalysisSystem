@@ -10,3 +10,5 @@ google-generativeai
 psycopg2
 sqlalchemy
 alembic
+anthropic
+boto3
