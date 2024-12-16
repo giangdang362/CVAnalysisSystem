@@ -1,67 +1,35 @@
 "use client";
 
-import { ConfigProvider } from "antd";
+import { Button, ConfigProvider, message, Table } from "antd";
 import { useEffect, useState } from "react";
-import { getPokemons, getPokemonsById } from "@/app/api/pokemons";
+import { PlusOutlined } from "@ant-design/icons";
 
-import ApiTable from "./api-table";
-
-type pokemonsTable = {
-  name: string;
-  key: Number;
-  height: Number;
-  weight: Number;
-  photo: string;
-  hp: number;
-  attack: number;
-  defense: number;
-  speed: number;
-};
+import { columns } from "./column";
+import { useModal } from "@/hooks/use-modal-store";
+import ModalComponent from "./CreateUpdateModal";
+import { getCVList } from "@/src/services/cv";
 
 const TablePage = () => {
-  const [pokemonsTable, setPokemonsTable] = useState<pokemonsTable[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [res, setRes] = useState<API.ResponseGetListCV>();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const { onOpen } = useModal();
+
+  const showModal = () => {
+    onOpen();
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      const pokemons = await getPokemons();
-      const pokemonsTable: pokemonsTable[] = [];
-      await Promise.all(
-        pokemons.results.map(async (pokemon: any, index: number) => {
-          pokemonsTable[index] = {
-            name: pokemon.name,
-            key: index,
-            height: 0,
-            weight: 0,
-            photo: "",
-            hp: 0,
-            attack: 0,
-            defense: 0,
-            speed: 0,
-          };
-          const pokemonDetail = await getPokemonsById(index + 1);
-          pokemonsTable[index].height = pokemonDetail.height;
-          pokemonsTable[index].weight = pokemonDetail.weight;
-          pokemonsTable[index].photo =
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-            pokemonDetail.sprites.front_default.split(
-              "https://raw.githubusercontent.com/PokeAPI/sprites/master"
-            )[
-              pokemonDetail.sprites.front_default.split(
-                "https://raw.githubusercontent.com/PokeAPI/sprites/master"
-              ).length - 1
-            ];
-
-          pokemonsTable[index].hp = pokemonDetail.stats[0].base_stat;
-          pokemonsTable[index].attack = pokemonDetail.stats[1].base_stat;
-          pokemonsTable[index].defense = pokemonDetail.stats[2].base_stat;
-          pokemonsTable[index].speed = pokemonDetail.stats[5].base_stat;
-        })
-      );
-      setPokemonsTable(pokemonsTable);
-      setIsLoading(false);
+      setLoading(true);
+      try {
+        const res = await getCVList();
+        setRes(res);
+      } catch (error) {
+        message.error("Error. Please try again!");
+      }
+      setLoading(false);
     };
-
     fetchData();
   }, []);
 
@@ -69,14 +37,29 @@ const TablePage = () => {
     <ConfigProvider
       theme={{
         token: {
-          motion: false,
+          motion: true,
         },
       }}
     >
-      <div>
-        <span className="ml-1 mb-1">api table</span>
-        <ApiTable dataSource={pokemonsTable} isLoading={isLoading} />
+      <div className="flex justify-between items-center my-5">
+        <div className="font-bold text-2xl">List of CVs</div>
+        <Button
+          type="primary"
+          shape="round"
+          icon={<PlusOutlined />}
+          size={"middle"}
+          onClick={showModal}
+        >
+          Add new CV
+        </Button>
       </div>
+
+      <Table
+        loading={loading}
+        columns={columns()}
+        dataSource={res?.data}
+      />
+      <ModalComponent />
     </ConfigProvider>
   );
 };
