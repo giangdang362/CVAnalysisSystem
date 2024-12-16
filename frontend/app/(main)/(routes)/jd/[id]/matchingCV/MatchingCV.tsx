@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Table, TableProps } from "antd";
+import { Table } from "antd";
 
 import { useModalDetail } from "@/hooks/use-modal-store";
 import { columns } from "./columns";
