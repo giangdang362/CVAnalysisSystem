@@ -1,7 +1,7 @@
 import { usePathname, useRouter } from "next/navigation";
 
 import { useCollapse } from "@/hooks/use-collapse-store";
-import { onStart } from "@/lib/router-events/events";
+import { onStart } from "@/src/lib/router-events/events";
 
 import {
   LogoutOutlined,

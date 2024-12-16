@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import Cookies from "js-cookie";
 
 import { StorageEnum, ThemeMode } from "@/types";
-import { getItem, setItem } from "@/lib/utils";
+import { getItem, setItem } from "@/src/lib/utils";
 import { colorPrimarys } from "@/theme/antd/theme";
 
 type SettingType = {

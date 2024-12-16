@@ -1,4 +1,4 @@
-import api from "@/axios";
+import api from "@/src/axios";
 
 export const getCVList = async (): Promise<API.ResponseGetListCV> => {
   const response = await api.get("/cv");
