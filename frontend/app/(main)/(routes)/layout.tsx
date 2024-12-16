@@ -1,14 +1,15 @@
 "use client";
 
+import NavBreadcrumb from "@/components/nav-breadcrumb/page";
+import HeaderPage from "@/components/layout/header/page";
+import SiderPage from "@/components/layout/sidebar/page";
+
 import { cn } from "@/src/lib/utils";
 import { useCollapse } from "@/hooks/use-collapse-store";
 import { useSettingStore } from "@/hooks/use-setting-store";
 import { useThemeToken } from "@/theme/use-theme-token";
 
 import { ThemeMode } from "@/types";
-import HeaderPage from "@/src/components/layout/header/page";
-import SiderPage from "@/src/components/layout/sidebar/page";
-import NavBreadcrumb from "@/src/components/nav-breadcrumb/page";
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { isCollapsed } = useCollapse();
