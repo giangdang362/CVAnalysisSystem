@@ -10,9 +10,10 @@ from app.models import CV, JD  # Assuming models are in app.models
 from dotenv import load_dotenv
 from docx import Document  # To handle docx files
 from anthropic import HUMAN_PROMPT, AI_PROMPT  # For Claude API
-from app.bedrock_wrapper import invoke_claude
+from app.invoke_promt import call_claude_api
 import re
 from fastapi.staticfiles import StaticFiles
+from PyPDF2 import PdfReader
 
 # Load environment variables
 load_dotenv()
@@ -233,9 +234,14 @@ async def rank_cv_against_jds(
         # Read CV file
         if not os.path.exists(cv.path_file):
             raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
-        cv_text = read_docx(cv.path_file)
-
-        print(cv_text)
+        
+        # Determine file type and read content
+        if cv.path_file.lower().endswith('.pdf'):
+            cv_text = read_pdf(cv.path_file)
+        elif cv.path_file.lower().endswith('.docx'):
+            cv_text = read_docx(cv.path_file)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported CV file format")
 
         results = []
 
@@ -244,7 +250,13 @@ async def rank_cv_against_jds(
             if not os.path.exists(jd.path_file):
                 raise HTTPException(status_code=404, detail=f"JD file not found at: {jd.path_file}")
 
-            jd_text = read_docx(jd.path_file)
+            # Determine file type and read content
+            if jd.path_file.lower().endswith('.pdf'):
+                jd_text = read_pdf(jd.path_file)
+            elif jd.path_file.lower().endswith('.docx'):
+                jd_text = read_docx(jd.path_file)
+            else:
+                raise HTTPException(status_code=400, detail="Unsupported JD file format")
 
             # Prepare input for Claude API
             prompt_input = f"""{HUMAN_PROMPT}
@@ -269,10 +281,19 @@ async def rank_cv_against_jds(
             {AI_PROMPT}"""
 
             # Call Claude API
-            response = invoke_claude(prompt_input)
+            response = call_claude_api(prompt_input)
 
-            # Extract Overall_score using Regex
-            overall_score_match = re.search(r"Overall_score: (\d+)", response)
+            # Ensure response is string and handle JSON content
+            if isinstance(response, dict):
+                # Extract text content from response if it's a dict
+                response_text = response.get("content", "")
+            elif isinstance(response, str):
+                response_text = response
+            else:
+                raise HTTPException(status_code=500, detail="Invalid response format from Claude API")
+
+            # Use Regex to extract Overall_score
+            overall_score_match = re.search(r"Overall_score: (\d+)", response_text)
             overall_score = int(overall_score_match.group(1)) if overall_score_match else 0
 
             result = {
@@ -292,7 +313,7 @@ async def rank_cv_against_jds(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 @app.post("/matching/jd-to-cvs/rank", tags=["Matching"])
 async def rank_jd_against_cvs(
     jd_id: int, cv_ids: List[int], db: Session = Depends(get_db)
@@ -316,7 +337,14 @@ async def rank_jd_against_cvs(
         # Read JD file
         if not os.path.exists(jd.path_file):
             raise HTTPException(status_code=404, detail=f"JD file not found at: {jd.path_file}")
-        jd_text = read_docx(jd.path_file)
+        
+        # Determine file type and read content for JD
+        if jd.path_file.endswith(".docx"):
+            jd_text = read_docx(jd.path_file)
+        elif jd.path_file.endswith(".pdf"):
+            jd_text = read_pdf(jd.path_file)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file type for JD")
 
         results = []
 
@@ -325,7 +353,7 @@ async def rank_jd_against_cvs(
             if not os.path.exists(cv.path_file):
                 raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
 
-            # Determine file type and read content
+            # Determine file type and read content for CV
             if cv.path_file.endswith(".docx"):
                 cv_text = read_docx(cv.path_file)
             elif cv.path_file.endswith(".pdf"):
@@ -356,7 +384,7 @@ async def rank_jd_against_cvs(
             {AI_PROMPT}"""
 
             # Call Claude API
-            response = invoke_claude(prompt_input)
+            response = call_claude_api(prompt_input)
 
             # Extract Overall_score using Regex
             overall_score_match = re.search(r"Overall_score: (\d+)", response)
