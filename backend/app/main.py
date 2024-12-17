@@ -2,7 +2,6 @@ from fastapi import FastAPI, Depends, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.exc import OperationalError
 from typing import List
 import os
 from datetime import datetime
@@ -283,6 +282,8 @@ async def rank_cv_against_jds(
             # Call Claude API
             response = call_claude_api(prompt_input)
 
+            print("response",response)
+
             # Ensure response is string and handle JSON content
             if isinstance(response, dict):
                 # Extract text content from response if it's a dict
@@ -339,10 +340,10 @@ async def rank_jd_against_cvs(
             raise HTTPException(status_code=404, detail=f"JD file not found at: {jd.path_file}")
         
         # Determine file type and read content for JD
-        if jd.path_file.endswith(".docx"):
-            jd_text = read_docx(jd.path_file)
-        elif jd.path_file.endswith(".pdf"):
+        if jd.path_file.lower().endswith(".pdf"):
             jd_text = read_pdf(jd.path_file)
+        elif jd.path_file.lower().endswith(".docx"):
+            jd_text = read_docx(jd.path_file)
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type for JD")
 
@@ -354,10 +355,10 @@ async def rank_jd_against_cvs(
                 raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
 
             # Determine file type and read content for CV
-            if cv.path_file.endswith(".docx"):
-                cv_text = read_docx(cv.path_file)
-            elif cv.path_file.endswith(".pdf"):
+            if cv.path_file.lower().endswith(".pdf"):
                 cv_text = read_pdf(cv.path_file)
+            elif cv.path_file.lower().endswith(".docx"):
+                cv_text = read_docx(cv.path_file)
             else:
                 raise HTTPException(status_code=400, detail="Unsupported file type for CV")
 
@@ -386,8 +387,17 @@ async def rank_jd_against_cvs(
             # Call Claude API
             response = call_claude_api(prompt_input)
 
-            # Extract Overall_score using Regex
-            overall_score_match = re.search(r"Overall_score: (\d+)", response)
+            # Ensure response is string and handle JSON content
+            if isinstance(response, dict):
+                # Extract 'content' or the key containing the result text
+                response_text = response.get("content", "")
+            elif isinstance(response, str):
+                response_text = response
+            else:
+                raise HTTPException(status_code=500, detail="Invalid response format from Claude API")
+
+            # Use Regex to extract Overall_score
+            overall_score_match = re.search(r"Overall_score: (\d+)", response_text)
             overall_score = int(overall_score_match.group(1)) if overall_score_match else 0
 
             result = {

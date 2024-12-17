@@ -5,21 +5,19 @@ from botocore.exceptions import BotoCoreError, ClientError
 
 # Load environment variables (optional if needed)
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")  # Update your AWS region here
-MODEL_ID = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0"
 
 # Initialize Bedrock client
 def get_bedrock_client():
     try:
         return boto3.client("bedrock-runtime", region_name='us-east-1')
     except (BotoCoreError, ClientError) as e:
-        print(f"Error initializing Bedrock client: {e}")
         return None
 
 # Function to call Claude 3.5 Sonnet API
 def call_claude_api(prompt: str, max_tokens: int = 200, temperature: float = 1.0):
     client = get_bedrock_client()
 
-    print('ssssssssssssssssss')
     if not client:
         return {"error": "Failed to initialize Bedrock client"}
 
@@ -46,11 +44,10 @@ def call_claude_api(prompt: str, max_tokens: int = 200, temperature: float = 1.0
             body=json.dumps(payload)
         )
         result = json.loads(response["body"].read())
-        print("result-------------------",result)
-        return result
+        llmOutput = result.get("content")[0]["text"]
+        return llmOutput
 
     except (BotoCoreError, ClientError) as e:
-        print("Error during API call:", str(e))
         return {"error": str(e)}
 
 # Main function
@@ -63,8 +60,5 @@ if __name__ == "__main__":
     max_tokens = 300
     temperature = 0.8
 
-    print("Calling Claude 3.5 Sonnet API...")
     response = call_claude_api(prompt, max_tokens, temperature)
 
-    print("\nAPI Response:")
-    print(json.dumps(response, indent=4))
