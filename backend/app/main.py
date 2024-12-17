@@ -223,12 +223,16 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
             raise HTTPException(status_code=404, detail="No JDs found")
 
         # Read CV content
+        cv_text = ""
         if cv.path_file.lower().endswith(".pdf"):
             cv_text = read_pdf(cv.path_file)
         elif cv.path_file.lower().endswith(".docx"):
             cv_text = read_docx(cv.path_file)
         else:
             raise HTTPException(status_code=400, detail="Unsupported CV file format")
+        
+        # Read the Prompt file
+        prompt_text = read_docx(PROMPT_FILE)
 
         results = []
 
@@ -243,14 +247,15 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
             # Prepare the prompt
             prompt = f"""
             You are tasked with evaluating a CV against a Job Description (JD) based on the following criteria: Tech Stack, Experience, Language, and Leadership.
-
-            JD:
-            {jd_text}
+            {prompt_text}
 
             CV:
             {cv_text}
 
-            Follow the scoring rubric and return JSON in the specified format.
+            JD:
+            {jd_text}
+
+
             """
 
             # Call Claude API
@@ -283,7 +288,7 @@ async def rank_jd_against_cvs(
     jd_id: int, cv_ids: List[int], db: Session = Depends(get_db)
 ):
     """
-    Rank a JD against a list of CVs based on scoring criteria defined in a prompt file.
+    Rank a JD against a list of CVs based on scoring criteria.
     """
     try:
         # Fetch JD details
@@ -295,14 +300,8 @@ async def rank_jd_against_cvs(
         if not cvs:
             raise HTTPException(status_code=404, detail="No CVs found with the provided IDs")
 
-        # Read the Prompt file
-        prompt_text = read_docx(PROMPT_FILE)
-
         # Read JD file
-        if not os.path.exists(jd.path_file):
-            raise HTTPException(status_code=404, detail=f"JD file not found at: {jd.path_file}")
-        
-        # Determine file type and read content for JD
+        jd_text = ""
         if jd.path_file.lower().endswith(".pdf"):
             jd_text = read_pdf(jd.path_file)
         elif jd.path_file.lower().endswith(".docx"):
@@ -310,14 +309,17 @@ async def rank_jd_against_cvs(
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type for JD")
 
+        # Read the Prompt file
+        prompt_text = read_docx(PROMPT_FILE)
         results = []
 
-        # Process each CV individually
+        # Process each CV
         for cv in cvs:
             if not os.path.exists(cv.path_file):
                 raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
 
-            # Determine file type and read content for CV
+            # Read CV file
+            cv_text = ""
             if cv.path_file.lower().endswith(".pdf"):
                 cv_text = read_pdf(cv.path_file)
             elif cv.path_file.lower().endswith(".docx"):
@@ -325,62 +327,46 @@ async def rank_jd_against_cvs(
             else:
                 raise HTTPException(status_code=400, detail="Unsupported file type for CV")
 
-            # Prepare input for Claude API
-            prompt_input = f"""{HUMAN_PROMPT}
-            You are tasked with ranking a Job Description (JD) against a CV based on the following criteria:
-            - Tech stack
-            - Experience
-            - Language
-            - Leadership
+            # Prepare prompt input
+            prompt = f"""
+            You are tasked with evaluating a Job Description (JD) against a CV based on 4 criteria: 
+            Tech Stack, Experience, Language, and Leadership.
 
-            Here is the input:
-            - JD:
-            Company: {jd.company_name}, Role: {jd.role}, Level: {jd.level}, Skills: {jd.technical_skill}
-            {jd_text}
-            - CV:
-            {cv_text}
-            - Evaluation criteria:
             {prompt_text}
 
-            Provide the following:
-            - Overall_score: Overall match score between the JD and CV.
-            Provide a JSON-formatted response.
-            {AI_PROMPT}"""
+            JD: 
+            {jd_text}
+
+            CV:
+            {cv_text}
+            """
 
             # Call Claude API
-            response = call_claude_api(prompt_input)
+            response = call_claude_api(prompt)
+            
+            if "error" in response:
+                raise HTTPException(status_code=500, detail=response["error"])
 
-            # Ensure response is string and handle JSON content
-            if isinstance(response, dict):
-                # Extract 'content' or the key containing the result text
-                response_text = response.get("content", "")
-            elif isinstance(response, str):
-                response_text = response
-            else:
-                raise HTTPException(status_code=500, detail="Invalid response format from Claude API")
-
-            # Use Regex to extract Overall_score
-            overall_score_match = re.search(r"Overall_score: (\d+)", response_text)
-            overall_score = int(overall_score_match.group(1)) if overall_score_match else 0
-
+            # Build result
             result = {
                 "cv_name": cv.name,
-                "applicant_name": cv.applicant_name,
-                "role": cv.role,
-                "expect_salary": cv.expect_salary,
-                "education": cv.education,
-                "overall_score": overall_score
+                "overall_score": response.get("Overall_Score", 0),
+                "score_detail": {
+                    "tech_stack": response.get("Tech_Stack", 0),
+                    "experience": response.get("Experience", 0),
+                    "language": response.get("Language", 0),
+                    "leadership": response.get("Leadership", 0),
+                }
             }
             results.append(result)
 
-        # Sort results by overall_score in descending order
+        # Sort results by overall_score
         results.sort(key=lambda x: x["overall_score"], reverse=True)
 
         return {"message": "success", "data": results, "count": len(results)}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 # Helper function to read docx file
 def read_docx(file_path: str) -> str:
