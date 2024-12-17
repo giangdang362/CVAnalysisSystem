@@ -12,6 +12,7 @@ from docx import Document  # To handle docx files
 from anthropic import HUMAN_PROMPT, AI_PROMPT  # For Claude API
 from app.bedrock_wrapper import invoke_claude
 import re
+from fastapi.staticfiles import StaticFiles
 
 # Load environment variables
 load_dotenv()
@@ -50,6 +51,9 @@ app.add_middleware(
 # File upload folder
 UPLOAD_FOLDER = "uploaded_files"
 PROMPT_FILE = "app/configs/prompt_guide.docx"
+
+# Mount thư mục uploaded_files để truy cập
+app.mount("/uploaded_files", StaticFiles(directory="uploaded_files"), name="uploaded_files")
 
 # Default route
 @app.get("/")

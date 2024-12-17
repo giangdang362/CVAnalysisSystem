@@ -7,7 +7,8 @@ interface Props {
 }
 
 const CvDetail = ({ item }: Props) => {
-  console.log("🚀 ~ CvDetail ~ item:", item)
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
   return (
     <div>
       <div className="text-5xl font-bold mb-5">{item.applicant_name}</div>
@@ -19,7 +20,7 @@ const CvDetail = ({ item }: Props) => {
           <span className="font-bold">Recruiter:</span> {item.recruiter}
         </p>
       </div>
-      <embed src={item.path_file} className="w-full h-[calc(60dvh)]" />
+      <embed src={`${baseUrl}/${item.path_file}`} className="w-full h-[calc(60dvh)]" />
     </div>
   );
 };

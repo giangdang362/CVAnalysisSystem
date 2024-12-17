@@ -17,7 +17,7 @@ export const columns = (
       key: "name",
       render: (_, original) => (
         <div
-          className="!text-blue-500"
+          className="!text-blue-500 cursor-pointer hover:!text-blue-700"
           onClick={onOpen}
         >
           {original?.name}
