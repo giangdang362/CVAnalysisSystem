@@ -50,7 +50,8 @@ app.add_middleware(
 
 # File upload folder
 UPLOAD_FOLDER = "uploaded_files"
-PROMPT_FILE = "app/configs/prompt_guide.docx"
+PROMPT_FILE_OLD = "app/configs/prompt_guide.docx"
+PROMPT_FILE= "app/configs/prompt.docx"
 
 # Mount thư mục uploaded_files để truy cập
 app.mount("/uploaded_files", StaticFiles(directory="uploaded_files"), name="uploaded_files")
@@ -211,105 +212,67 @@ async def match_jd_to_cvs(jd_id: int, db: Session = Depends(get_db)):
     return {"message": "success", "data": matching_cvs, "count": len(matching_cvs)}
 
 @app.post("/matching/cv-to-jds/rank", tags=["Matching"])
-async def rank_cv_against_jds(
-    cv_id: int, jd_ids: List[int], db: Session = Depends(get_db)
-):
-    """
-    Rank a CV against a list of JDs based on scoring criteria defined in a prompt file.
-    """
+async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depends(get_db)):
     try:
-        # Fetch CV and JD details
         cv = db.query(CV).filter(CV.id == cv_id).first()
         if not cv:
             raise HTTPException(status_code=404, detail="CV not found")
 
         jds = db.query(JD).filter(JD.id.in_(jd_ids)).all()
         if not jds:
-            raise HTTPException(status_code=404, detail="No JDs found with the provided IDs")
+            raise HTTPException(status_code=404, detail="No JDs found")
 
-        # Read the Prompt file
-        prompt_text = read_docx(PROMPT_FILE)
-
-        # Read CV file
-        if not os.path.exists(cv.path_file):
-            raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
-        
-        # Determine file type and read content
-        if cv.path_file.lower().endswith('.pdf'):
+        # Read CV content
+        if cv.path_file.lower().endswith(".pdf"):
             cv_text = read_pdf(cv.path_file)
-        elif cv.path_file.lower().endswith('.docx'):
+        elif cv.path_file.lower().endswith(".docx"):
             cv_text = read_docx(cv.path_file)
         else:
             raise HTTPException(status_code=400, detail="Unsupported CV file format")
 
         results = []
 
-        # Process each JD individually
         for jd in jds:
-            if not os.path.exists(jd.path_file):
-                raise HTTPException(status_code=404, detail=f"JD file not found at: {jd.path_file}")
-
-            # Determine file type and read content
-            if jd.path_file.lower().endswith('.pdf'):
+            if jd.path_file.lower().endswith(".pdf"):
                 jd_text = read_pdf(jd.path_file)
-            elif jd.path_file.lower().endswith('.docx'):
+            elif jd.path_file.lower().endswith(".docx"):
                 jd_text = read_docx(jd.path_file)
             else:
                 raise HTTPException(status_code=400, detail="Unsupported JD file format")
 
-            # Prepare input for Claude API
-            prompt_input = f"""{HUMAN_PROMPT}
-            You are tasked with ranking a CV against a Job Description (JD) based on the following criteria:
-            - Tech stack
-            - Experience
-            - Language
-            - Leadership
+            # Prepare the prompt
+            prompt = f"""
+            You are tasked with evaluating a CV against a Job Description (JD) based on the following criteria: Tech Stack, Experience, Language, and Leadership.
 
-            Here is the input:
-            - CV:
-            {cv_text}
-            - JD:
-            Company: {jd.company_name}, Role: {jd.role}, Level: {jd.level}, Skills: {jd.technical_skill}
+            JD:
             {jd_text}
-            - Evaluation criteria:
-            {prompt_text}
 
-            Provide the following:
-            - Overall_score: Overall match score between the CV and JD.
-            Provide a JSON-formatted response.
-            {AI_PROMPT}"""
+            CV:
+            {cv_text}
+
+            Follow the scoring rubric and return JSON in the specified format.
+            """
 
             # Call Claude API
-            response = call_claude_api(prompt_input)
+            response = call_claude_api(prompt)
+            
+            if "error" in response:
+                raise HTTPException(status_code=500, detail=response["error"])
 
-            print("response",response)
-
-            # Ensure response is string and handle JSON content
-            if isinstance(response, dict):
-                # Extract text content from response if it's a dict
-                response_text = response.get("content", "")
-            elif isinstance(response, str):
-                response_text = response
-            else:
-                raise HTTPException(status_code=500, detail="Invalid response format from Claude API")
-
-            # Use Regex to extract Overall_score
-            overall_score_match = re.search(r"Overall_score: (\d+)", response_text)
-            overall_score = int(overall_score_match.group(1)) if overall_score_match else 0
-
+            # Build result
             result = {
                 "jd_name": jd.name,
-                "company_name": jd.company_name,
-                "role": jd.role,
-                "level": jd.level,
-                "technical_skill": jd.technical_skill,
-                "overall_score": overall_score
+                "overall_score": response.get("Overall_Score", 0),
+                "score_detail": {
+                    "tech_stack": response.get("Tech_Stack", 0),
+                    "experience": response.get("Experience", 0),
+                    "language": response.get("Language", 0),
+                    "leadership": response.get("Leadership", 0),
+                }
             }
             results.append(result)
 
-        # Sort results by overall_score in descending order
         results.sort(key=lambda x: x["overall_score"], reverse=True)
-
         return {"message": "success", "data": results, "count": len(results)}
 
     except Exception as e:
