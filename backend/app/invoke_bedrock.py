@@ -13,7 +13,7 @@ def get_bedrock_client():
         return None
 
 # Call Claude API and extract scores
-def call_claude_api(prompt: str, max_tokens: int = 100):
+def invoke_api(prompt: str, max_tokens: int = 100):
     client = get_bedrock_client()
 
     payload = {
@@ -42,15 +42,15 @@ def call_claude_api(prompt: str, max_tokens: int = 100):
     
 def extract_scores_from_response(response_text: str):
     """
-    Extract Overall_Score, Tech_Stack, Experience, Language, and Leadership scores using regex.
+    Extract overall_score, tech_stack, experience, language, and leadership scores using regex.
     """
     scores = {}
     patterns = {
-        "Overall_Score": r"Overall_Score:\s*([\d\.]+)",
-        "Tech_Stack": r"Tech_Stack:\s*([\d\.]+)",
-        "Experience": r"Experience:\s*([\d\.]+)",
-        "Language": r"Language:\s*([\d\.]+)",
-        "Leadership": r"Leadership:\s*([\d\.]+)"
+        "overall_score": r"overall_score:\s*([\d\.]+)",
+        "tech_stack": r"tech_stack:\s*([\d\.]+)",
+        "experience": r"experience:\s*([\d\.]+)",
+        "language": r"language:\s*([\d\.]+)",
+        "leadership": r"leadership:\s*([\d\.]+)"
     }
 
     for key, pattern in patterns.items():

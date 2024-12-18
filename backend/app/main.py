@@ -9,7 +9,8 @@ from app.models import CV, JD  # Assuming models are in app.models
 from dotenv import load_dotenv
 from docx import Document  # To handle docx files
 from anthropic import HUMAN_PROMPT, AI_PROMPT  # For Claude API
-from app.invoke_promt import call_claude_api
+from app.invoke_bedrock import invoke_api
+from app.invoke_gemini import invoke_gemini_api
 import re
 from fastapi.staticfiles import StaticFiles
 from PyPDF2 import PdfReader
@@ -232,7 +233,7 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
             raise HTTPException(status_code=400, detail="Unsupported CV file format")
         
         # Read the Prompt file
-        prompt_text = read_docx(PROMPT_FILE)
+        prompt_text = read_docx(PROMPT_FILE_OLD)
 
         results = []
 
@@ -246,7 +247,7 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
 
             # Prepare the prompt
             prompt = f"""
-            You are tasked with evaluating a CV against a Job Description (JD) based on the following criteria: Tech Stack, Experience, Language, and Leadership.
+            You are tasked with evaluating a CV against a Job Description (JD) based on the following criteria: Tech Stack, experience, language, and leadership.
             {prompt_text}
 
             CV:
@@ -259,7 +260,7 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
             """
 
             # Call Claude API
-            response = call_claude_api(prompt)
+            response = invoke_gemini_api(prompt)
             
             if "error" in response:
                 raise HTTPException(status_code=500, detail=response["error"])
@@ -267,13 +268,11 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
             # Build result
             result = {
                 "jd_name": jd.name,
-                "overall_score": response.get("Overall_Score", 0),
-                "score_detail": {
-                    "tech_stack": response.get("Tech_Stack", 0),
-                    "experience": response.get("Experience", 0),
-                    "language": response.get("Language", 0),
-                    "leadership": response.get("Leadership", 0),
-                }
+                "overall_score": response.get("overall_score", 0),
+                "tech_stack": response.get("tech_stack", 0),
+                "experience": response.get("experience", 0),
+                "language": response.get("language", 0),
+                "leadership": response.get("leadership", 0),
             }
             results.append(result)
 
@@ -330,7 +329,7 @@ async def rank_jd_against_cvs(
             # Prepare prompt input
             prompt = f"""
             You are tasked with evaluating a Job Description (JD) against a CV based on 4 criteria: 
-            Tech Stack, Experience, Language, and Leadership.
+            Tech Stack, experience, language, and leadership.
 
             {prompt_text}
 
@@ -342,7 +341,7 @@ async def rank_jd_against_cvs(
             """
 
             # Call Claude API
-            response = call_claude_api(prompt)
+            response = invoke_gemini_api(prompt)
             
             if "error" in response:
                 raise HTTPException(status_code=500, detail=response["error"])
@@ -350,13 +349,11 @@ async def rank_jd_against_cvs(
             # Build result
             result = {
                 "cv_name": cv.name,
-                "overall_score": response.get("Overall_Score", 0),
-                "score_detail": {
-                    "tech_stack": response.get("Tech_Stack", 0),
-                    "experience": response.get("Experience", 0),
-                    "language": response.get("Language", 0),
-                    "leadership": response.get("Leadership", 0),
-                }
+                "overall_score": response.get("overall_score", 0),
+                "tech_stack": response.get("tech_stack", 0),
+                "experience": response.get("experience", 0),
+                "language": response.get("language", 0),
+                "leadership": response.get("leadership", 0),
             }
             results.append(result)
 

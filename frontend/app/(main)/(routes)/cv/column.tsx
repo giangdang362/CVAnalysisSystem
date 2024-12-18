@@ -1,5 +1,7 @@
 import { APP_ROUTES } from "@/common/routes";
 import { FormatDateTime } from "@/util/common";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Button } from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 
@@ -48,7 +50,7 @@ export const columns = (): ColumnsType<API.CvItem> => {
       align: "center",
     },
     {
-      title: "Experience summary",
+      title: "experience summary",
       dataIndex: "experience_summary",
       key: "experience_summary",
       align: "center",
@@ -65,6 +67,15 @@ export const columns = (): ColumnsType<API.CvItem> => {
       key: "created_at",
       align: "center",
       render: (_,original) => <>{FormatDateTime(original.created_at)}</>
+    },
+    {
+      title: "Action",
+      key: "Action",
+      align: "center",
+      render: () => <div className="flex items-center justify-evenly">
+        <Button icon={<EditOutlined />} />
+        <Button icon={<DeleteOutlined />} />
+      </div>
     },
   ];
 };

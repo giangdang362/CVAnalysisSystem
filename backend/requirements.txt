@@ -12,3 +12,5 @@ sqlalchemy
 alembic
 anthropic
 boto3
+google-generativeai
+requests

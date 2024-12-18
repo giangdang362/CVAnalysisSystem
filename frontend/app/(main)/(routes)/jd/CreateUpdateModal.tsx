@@ -120,7 +120,7 @@ const CreateUpdateModal = () => {
               <Input allowClear placeholder="Input Level" />
             </Form.Item>
             <Form.Item
-              label="Language"
+              label="language"
               name="language"
               rules={[
                 {
@@ -128,7 +128,7 @@ const CreateUpdateModal = () => {
                 },
               ]}
             >
-              <Input allowClear placeholder="Input Language" />
+              <Input allowClear placeholder="Input language" />
             </Form.Item>
           </div>
           <div className="w-full">

@@ -45,7 +45,7 @@ export const columns = (
       render: (_, original) => <div>{original?.role}</div>,
     },
     {
-      title: "Language",
+      title: "language",
       dataIndex: "languages",
       key: "languages",
       align: "center",

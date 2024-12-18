@@ -140,7 +140,7 @@ const ModalComponent = () => {
           </div>
           <div className="w-full">
             <Form.Item
-              label="Experience summary"
+              label="experience summary"
               name="experience_summary"
               rules={[
                 {
@@ -150,7 +150,7 @@ const ModalComponent = () => {
             >
               <TextArea
                 allowClear
-                placeholder="Enter Experience summary"
+                placeholder="Enter experience summary"
                 rows={8}
               />
             </Form.Item>

@@ -27,15 +27,15 @@ const columns: TableProps<DataType>["columns"] = [
     dataIndex: "age",
   },
   {
-    title: "Experience (30%)",
+    title: "experience (30%)",
     dataIndex: "tel",
   },
   {
-    title: "Language (30%)",
+    title: "language (30%)",
     dataIndex: "phone",
   },
   {
-    title: "Leadership (10%)",
+    title: "leadership (10%)",
     dataIndex: "address",
   },
 ];

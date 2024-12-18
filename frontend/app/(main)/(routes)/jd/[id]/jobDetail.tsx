@@ -39,7 +39,7 @@ const JobDetail = ({ item }: Props) => {
           <p className="text-lg">{item?.level}</p>
         </div>
         <div>
-          <p className="font-bold text-xl">Language</p>
+          <p className="font-bold text-xl">language</p>
           <p className="text-lg">{item?.languages}</p>
         </div>
         <div>

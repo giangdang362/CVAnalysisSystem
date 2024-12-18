@@ -1,4 +1,6 @@
 import { APP_ROUTES } from "@/common/routes";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Button } from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 
@@ -42,7 +44,7 @@ export const columns = (): ColumnsType<API.JdItem> => {
       render: (_, original) => <div>{original?.level}</div>,
     },
     {
-      title: "Language",
+      title: "language",
       dataIndex: "languages",
       key: "languages",
       align: "center",
@@ -58,6 +60,15 @@ export const columns = (): ColumnsType<API.JdItem> => {
       dataIndex: "description",
       key: "description",
       align: "center",
+    },
+    {
+      title: "Action",
+      key: "Action",
+      align: "center",
+      render: () => <div className="flex items-center justify-evenly">
+        <Button icon={<EditOutlined />} />
+        <Button icon={<DeleteOutlined />} />
+      </div>
     },
   ];
 };

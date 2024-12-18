@@ -27,9 +27,9 @@ def generate_prompt_for_cv_to_jd(cv_text: str, jd_summary: str) -> str:
     *** Overall Match Score: [Score]
     Score detail: 
     - Tech stack: [Score]
-    - Experience: [Score]
-    - Language: [Score]
-    - Leadership: [Score]
+    - experience: [Score]
+    - language: [Score]
+    - leadership: [Score]
     """
 
 
@@ -56,7 +56,7 @@ def generate_prompt_for_jd_to_cv(jd_text: str, cv_text: str) -> str:
     *** Overall Match Score: [Score]
     Score detail: 
     - Tech stack: [Score]
-    - Experience: [Score]
-    - Language: [Score]
-    - Leadership: [Score]
+    - experience: [Score]
+    - language: [Score]
+    - leadership: [Score]
     """

@@ -43,7 +43,7 @@ export const columns = (
       align: "center",
     },
     {
-      title: "Experience summary",
+      title: "experience summary",
       dataIndex: "experience_summary",
       key: "experience_summary",
       align: "center",

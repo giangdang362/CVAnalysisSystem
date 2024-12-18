@@ -42,7 +42,7 @@ const TablePage = () => {
       }}
     >
       <div className="flex justify-between items-center my-5">
-        <div className="font-bold text-2xl">List of CVs</div>
+        <div className="font-bold text-2xl">List of JDs</div>
         <Button
           type="primary"
           shape="round"
