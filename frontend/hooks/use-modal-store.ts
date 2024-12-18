@@ -12,7 +12,7 @@ export const useModal = create<ModalData>((set) => ({
   onClose: () => set({ isOpen: false }),
 }));
 
-export const useModalDetail = create<ModalData>((set) => ({
+export const useModalResult = create<ModalData>((set) => ({
   isOpen: false,
   onOpen: () => set({ isOpen: true }),
   onClose: () => set({ isOpen: false }),

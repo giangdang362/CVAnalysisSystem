@@ -2,7 +2,7 @@
 
 import { Modal, Table, TableProps } from "antd";
 
-import { useModalDetail } from "@/hooks/use-modal-store";
+import { useModalResult } from "@/hooks/use-modal-store";
 
 interface DataType {
   key: string;
@@ -84,11 +84,11 @@ const data: DataType[] = [
 ];
 
 const ModalCVDetail = () => {
-  const { isOpen, onClose } = useModalDetail();
+  const { isOpen, onClose } = useModalResult();
 
   return (
     <Modal
-      title="JD Detail"
+      title="Result Analyze"
       open={isOpen}
       onOk={onClose}
       onCancel={onClose}
@@ -96,7 +96,7 @@ const ModalCVDetail = () => {
       className="w-full"
       width={1000}
     >
-      <Table<DataType>
+      <Table
         columns={columns}
         dataSource={data}
         bordered

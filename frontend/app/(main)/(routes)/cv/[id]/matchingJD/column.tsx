@@ -1,7 +1,7 @@
 import { ColumnsType } from "antd/es/table";
 
 export const columns = (
-  onOpen: () => void
+  onOpen?: () => void
 ): ColumnsType<API.JdItem> => {
   return [
     {
@@ -18,7 +18,7 @@ export const columns = (
       render: (_, original) => (
         <div
           className="text-blue-500 cursor-pointer hover:text-blue-700"
-          onClick={onOpen}
+          // onClick={onOpen}
         >
           {original?.name}
         </div>
@@ -38,14 +38,14 @@ export const columns = (
       align: "center",
     },
     {
-      title: "role",
+      title: "Role",
       dataIndex: "role",
       key: "role",
       align: "center",
       render: (_, original) => <div>{original?.role}</div>,
     },
     {
-      title: "language",
+      title: "Language",
       dataIndex: "languages",
       key: "languages",
       align: "center",

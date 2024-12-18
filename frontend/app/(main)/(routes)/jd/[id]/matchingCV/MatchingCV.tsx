@@ -3,12 +3,12 @@
 import React from "react";
 import { Table } from "antd";
 
-import { useModalDetail } from "@/hooks/use-modal-store";
+import { useModalResult } from "@/hooks/use-modal-store";
 import { columns } from "./columns";
 import ModalCVDetail from "../ModalCVDetail";
 
 const MatchingCV = ({data}: {data: API.CvItem[]}) => {
-  const { onOpen } = useModalDetail();
+  const { onOpen } = useModalResult();
 
   return (
     <div>

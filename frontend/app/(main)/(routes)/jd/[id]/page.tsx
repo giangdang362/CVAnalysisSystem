@@ -18,7 +18,7 @@ const Page = ({ params }: Props) => {
   const [resJdDetail, setResJdDetail] = useState<API.ResponseJdDetail>();
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvToJds>();
+  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvAndJd>();
 
   useEffect(() => {
     getJdDetail(id)
