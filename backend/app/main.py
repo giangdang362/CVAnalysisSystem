@@ -267,7 +267,7 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
 
             # Build result
             result = {
-                "jd_name": jd.name,
+                "name": jd.name,
                 "overall_score": response.get("overall_score", 0),
                 "tech_stack": response.get("tech_stack", 0),
                 "experience": response.get("experience", 0),
@@ -348,7 +348,7 @@ async def rank_jd_against_cvs(
 
             # Build result
             result = {
-                "cv_name": cv.name,
+                "name": cv.name,
                 "overall_score": response.get("overall_score", 0),
                 "tech_stack": response.get("tech_stack", 0),
                 "experience": response.get("experience", 0),
