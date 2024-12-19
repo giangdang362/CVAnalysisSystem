@@ -11,8 +11,4 @@ export const APP_ROUTES = {
     path: "/jd",
     title: "JDs",
   },
-  Table: {
-    path: "/table",
-    title: "Table",
-  },
 };

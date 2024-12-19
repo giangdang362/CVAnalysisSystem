@@ -1,6 +1,6 @@
 "use client";
 
-import NavBreadcrumb from "@/components/nav-breadcrumb/page";
+// import NavBreadcrumb from "@/components/nav-breadcrumb/page";
 import HeaderPage from "@/components/layout/header/page";
 import SiderPage from "@/components/layout/sidebar/page";
 
@@ -15,7 +15,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const { isCollapsed } = useCollapse();
 
   const { settings } = useSettingStore();
-  const { colorBgContainer, colorBgElevated } = useThemeToken();
+  const { colorBgElevated } = useThemeToken();
 
   return (
     <>
@@ -39,7 +39,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             isCollapsed ? "ml-[50px]" : "ml-[210px]"
           )}
         >
-          <div
+          {/* <div
             className="h-full flex items-center bg-[#f0f4f7]"
             style={{
               color: settings.themeMode === ThemeMode.Dark ? "#ffffff" : "",
@@ -48,11 +48,11 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             }}
           >
             <NavBreadcrumb />
-          </div>
+          </div> */}
         </div>
         <main
           className={cn(
-            "w-full min-h-[100vh] bg-[#f0f4f7] p-2 pt-[98px] transition-spacing",
+            "w-full min-h-[100vh] bg-[#f0f4f7] p-10 pt-[60px] transition-spacing",
             isCollapsed ? "ml-[50px]" : "ml-[210px]"
           )}
           style={{

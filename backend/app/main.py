@@ -3,25 +3,29 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
-import os
 from datetime import datetime
 from app.models import CV, JD  # Assuming models are in app.models
 from dotenv import load_dotenv
 from docx import Document  # To handle docx files
 from anthropic import HUMAN_PROMPT, AI_PROMPT  # For Claude API
-from app.invoke_bedrock import invoke_api
+# from app.invoke_bedrock import invoke_api
 from app.invoke_gemini import invoke_gemini_api
-import re
+import uuid, os, boto3
 from fastapi.staticfiles import StaticFiles
 from PyPDF2 import PdfReader
 from pydantic import BaseModel
 from typing import List
+from botocore.exceptions import ClientError
 
 # Load environment variables
 load_dotenv()
 
 # Database connection settings
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+# S3 config
+BUCKET_NAME = 'lts-4-aisayhi'
+s3_client = boto3.client('s3')
 
 # Initialize database engine and session
 engine = create_engine(DATABASE_URL, echo=True)
@@ -52,12 +56,8 @@ app.add_middleware(
 )
 
 # File upload folder
-UPLOAD_FOLDER = "uploaded_files"
 PROMPT_FILE_OLD = "app/configs/prompt_guide.docx"
 PROMPT_FILE= "app/configs/prompt.docx"
-
-# Mount thư mục uploaded_files để truy cập
-app.mount("/uploaded_files", StaticFiles(directory="uploaded_files"), name="uploaded_files")
 
 # Default route
 @app.get("/")
@@ -102,21 +102,21 @@ async def add_cv(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
-    """Add a new CV"""
-    folder_path = os.path.join(UPLOAD_FOLDER, "cv")
-    os.makedirs(folder_path, exist_ok=True)
-    file_path = os.path.join(folder_path, file.filename)
-
+    """Add a new CV and upload the file to S3"""
     try:
-        # Save file to disk
-        with open(file_path, "wb") as f:
-            f.write(await file.read())
+        # Gọi hàm hỗ trợ upload_file_s3 để upload file lên S3
+        upload_result = await upload_file_s3(file, "cv")
+        if "error" in upload_result:
+            raise HTTPException(status_code=500, detail=upload_result["error"])
 
-        # Add CV record to database
+        # Lấy S3 path từ kết quả trả về của hàm upload_file_s3
+        s3_path = upload_result["s3_path"]
+
+        # Thêm CV record vào database
         new_cv = CV(
             name=name,
             applicant_name=applicant_name,
-            path_file=file_path,
+            path_file=s3_path,  # Lưu đường dẫn S3
             expect_salary=expect_salary,
             education=education,
             role=role,
@@ -128,6 +128,7 @@ async def add_cv(
         db.add(new_cv)
         db.commit()
         db.refresh(new_cv)
+
         return {"status": "success", "cv": new_cv}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -151,20 +152,20 @@ async def add_jd(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
-    """Add a new JD"""
-    folder_path = os.path.join(UPLOAD_FOLDER, "jd")
-    os.makedirs(folder_path, exist_ok=True)
-    file_path = os.path.join(folder_path, file.filename)
-
+    """Add a new JD and upload the file to S3"""
     try:
-        # Save file to disk
-        with open(file_path, "wb") as f:
-            f.write(await file.read())
+        # Gọi hàm hỗ trợ upload_file_s3 để upload file lên S3
+        upload_result = await upload_file_s3(file, "jd")
+        if "error" in upload_result:
+            raise HTTPException(status_code=500, detail=upload_result["error"])
 
-        # Add JD record to database
+        # Lấy S3 path từ kết quả trả về của hàm upload_file_s3
+        s3_path = upload_result["s3_path"]
+
+        # Thêm JD record vào database
         new_jd = JD(
             name=name,
-            path_file=file_path,
+            path_file=s3_path,  # Lưu đường dẫn S3
             company_name=company_name,
             role=role,
             level=level,
@@ -178,6 +179,7 @@ async def add_jd(
         db.add(new_jd)
         db.commit()
         db.refresh(new_jd)
+
         return {"status": "success", "jd": new_jd}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -220,37 +222,41 @@ class RankRequest(BaseModel):
 @app.post("/matching/cv-to-jds/rank", tags=["Matching"])
 async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db)):
     try:
+        # Lấy CV từ DB
         cv = db.query(CV).filter(CV.id == payload.cv_id).first()
         if not cv:
             raise HTTPException(status_code=404, detail="CV not found")
 
+        # Lấy danh sách JD từ DB
         jds = db.query(JD).filter(JD.id.in_(payload.jd_ids)).all()
         if not jds:
             raise HTTPException(status_code=404, detail="No JDs found")
 
-        # Read CV content
+        # Đọc nội dung CV từ S3
         cv_text = ""
         if cv.path_file.lower().endswith(".pdf"):
-            cv_text = read_pdf(cv.path_file)
+            cv_text = read_pdf_from_s3(cv.path_file)
         elif cv.path_file.lower().endswith(".docx"):
-            cv_text = read_docx(cv.path_file)
+            cv_text = read_docx_from_s3(cv.path_file)
         else:
             raise HTTPException(status_code=400, detail="Unsupported CV file format")
         
-        # Read the Prompt file
+        # Đọc nội dung Prompt từ file DOCX
         prompt_text = read_docx(PROMPT_FILE_OLD)
 
         results = []
 
+        # Đọc nội dung JD từ S3 và thực hiện phân tích
         for jd in jds:
+            jd_text = ""
             if jd.path_file.lower().endswith(".pdf"):
-                jd_text = read_pdf(jd.path_file)
+                jd_text = read_pdf_from_s3(jd.path_file)
             elif jd.path_file.lower().endswith(".docx"):
-                jd_text = read_docx(jd.path_file)
+                jd_text = read_docx_from_s3(jd.path_file)
             else:
                 raise HTTPException(status_code=400, detail="Unsupported JD file format")
 
-            # Prepare the prompt
+            # Chuẩn bị prompt
             prompt = f"""
             You are tasked with evaluating a CV against a Job Description (JD) based on the following criteria: Tech Stack, experience, language, and leadership.
             {prompt_text}
@@ -260,17 +266,15 @@ async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db
 
             JD:
             {jd_text}
-
-
             """
 
-            # Call Claude API
+            # Gọi API phân tích
             response = invoke_gemini_api(prompt)
             
             if "error" in response:
                 raise HTTPException(status_code=500, detail=response["error"])
 
-            # Build result
+            # Xây dựng kết quả
             result = {
                 "name": jd.name,
                 "overall_score": response.get("overall_score", 0),
@@ -281,6 +285,7 @@ async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db
             }
             results.append(result)
 
+        # Sắp xếp kết quả theo điểm tổng thể (giảm dần)
         results.sort(key=lambda x: x["overall_score"], reverse=True)
         return {"message": "success", "data": results, "count": len(results)}
 
@@ -303,16 +308,17 @@ async def rank_jd_against_cvs(
         if not jd:
             raise HTTPException(status_code=404, detail="JD not found")
 
+        # Fetch CVs from DB
         cvs = db.query(CV).filter(CV.id.in_(payload.cv_ids)).all()
         if not cvs:
             raise HTTPException(status_code=404, detail="No CVs found with the provided IDs")
 
-        # Read JD file
+        # Read JD file from S3
         jd_text = ""
         if jd.path_file.lower().endswith(".pdf"):
-            jd_text = read_pdf(jd.path_file)
+            jd_text = read_pdf_from_s3(jd.path_file)
         elif jd.path_file.lower().endswith(".docx"):
-            jd_text = read_docx(jd.path_file)
+            jd_text = read_docx_from_s3(jd.path_file)
         else:
             raise HTTPException(status_code=400, detail="Unsupported file type for JD")
 
@@ -322,15 +328,12 @@ async def rank_jd_against_cvs(
 
         # Process each CV
         for cv in cvs:
-            if not os.path.exists(cv.path_file):
-                raise HTTPException(status_code=404, detail=f"CV file not found at: {cv.path_file}")
-
-            # Read CV file
+            # Read CV file from S3
             cv_text = ""
             if cv.path_file.lower().endswith(".pdf"):
-                cv_text = read_pdf(cv.path_file)
+                cv_text = read_pdf_from_s3(cv.path_file)
             elif cv.path_file.lower().endswith(".docx"):
-                cv_text = read_docx(cv.path_file)
+                cv_text = read_docx_from_s3(cv.path_file)
             else:
                 raise HTTPException(status_code=400, detail="Unsupported file type for CV")
 
@@ -348,7 +351,7 @@ async def rank_jd_against_cvs(
             {cv_text}
             """
 
-            # Call Claude API
+            # Call Claude API (Gemini API)
             response = invoke_gemini_api(prompt)
             
             if "error" in response:
@@ -373,6 +376,60 @@ async def rank_jd_against_cvs(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+async def upload_file_s3(file: UploadFile = File(...), path: str = "cv"):
+    # Tạo unique filename
+    file_name = f"{uuid.uuid4()}-{file.filename}"
+    s3_path = f"{path}/{file_name}"
+    
+    try:
+        # Upload file lên S3
+        s3_client.upload_fileobj(file.file, BUCKET_NAME, s3_path)
+        # Trả lại path để lưu vào DB
+        return {"s3_path": s3_path, "message": "File uploaded successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+# Hàm đọc file trực tiếp từ S3
+def read_file_from_s3(path_file: str):
+    try:
+        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=path_file)
+        return response['Body'].read()  # Trả về nội dung file
+    except ClientError as e:
+        raise HTTPException(status_code=500, detail=f"Error reading file from S3: {e}")
+
+def download_file_from_s3(s3_path):
+    # Tạo đường dẫn file tạm
+    file_name = os.path.basename(s3_path)
+    local_path = f"/tmp/{file_name}"
+    
+    try:
+        # Download file từ S3
+        s3_client.download_file(BUCKET_NAME, s3_path, local_path)
+        return local_path
+    except Exception as e:
+        print(f"Error downloading file: {e}")
+        return None
+    
+
+# Hàm đọc PDF từ S3
+def read_pdf_from_s3(path_file: str):
+    from PyPDF2 import PdfReader
+    file_content = read_file_from_s3(path_file)
+    pdf_reader = PdfReader(file_content)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
+
+# Hàm đọc DOCX từ S3
+def read_docx_from_s3(path_file: str):
+    from io import BytesIO
+    from docx import Document
+    file_content = read_file_from_s3(path_file)
+    doc = Document(BytesIO(file_content))
+    text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+    return text
+
 # Helper function to read docx file
 def read_docx(file_path: str) -> str:
     try:
@@ -394,7 +451,6 @@ def read_pdf(file_path: str) -> str:
         return text
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read PDF file: {e}")
-
 
 # Run the application (only for testing purposes, not in production)
 if __name__ == "__main__":

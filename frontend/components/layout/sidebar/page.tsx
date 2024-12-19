@@ -2,15 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import {
-  FormOutlined,
   UserOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  TableOutlined,
+  MenuUnfoldOutlined
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu, ConfigProvider, Divider } from "antd";
-import { PiReadCvLogoFill } from "react-icons/pi";
 import { SiOpenjdk } from "react-icons/si";
 import { MdDashboard } from "react-icons/md";
 
@@ -48,7 +45,6 @@ const items: MenuProps["items"] = [
   ),
   getItem(APP_ROUTES?.CV?.title, APP_ROUTES?.CV?.path, <MdDashboard />),
   getItem(APP_ROUTES?.JD?.title, APP_ROUTES?.JD?.path, <SiOpenjdk />),
-  getItem(APP_ROUTES?.Table?.title, APP_ROUTES?.Table?.path, <TableOutlined />),
 ];
 
 const SiderPage = () => {
