@@ -196,8 +196,8 @@ async def match_cv_to_jds(cv_id: int, db: Session = Depends(get_db)):
 
     # Find JDs that match the CV's role
     matching_jds = db.query(JD).filter(JD.role == cv.role).all()
-
-    return {"message": "success", "data": matching_jds, "count": len(matching_jds)}
+    ids = [item.id for item in matching_jds]
+    return {"message": "success", "data": matching_jds, "ids": ids, "count": len(matching_jds)}
 
 @app.post("/matching/jd-to-cvs", tags=["Matching"])
 async def match_jd_to_cvs(jd_id: int, db: Session = Depends(get_db)):
@@ -209,8 +209,8 @@ async def match_jd_to_cvs(jd_id: int, db: Session = Depends(get_db)):
 
     # Find CVs that match the JD's role
     matching_cvs = db.query(CV).filter(CV.role == jd.role).all()
-
-    return {"message": "success", "data": matching_cvs, "count": len(matching_cvs)}
+    ids = [item.id for item in matching_cvs]
+    return {"message": "success", "data": matching_cvs, "ids": ids, "count": len(matching_cvs)}
 
 @app.post("/matching/cv-to-jds/rank", tags=["Matching"])
 async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depends(get_db)):

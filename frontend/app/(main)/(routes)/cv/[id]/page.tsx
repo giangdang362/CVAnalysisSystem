@@ -6,6 +6,7 @@ import CvDetail from "./applicantDetail";
 import { getCvDetail } from "@/src/services/cv";
 import { getMatchingCvToJds } from "@/src/services/matching";
 import MatchingJD from "./matchingJD/MatchingJD";
+import { useModalResult } from "@/hooks/use-modal-store";
 
 interface Props {
   params: {
@@ -15,11 +16,12 @@ interface Props {
 
 const Page = ({ params }: Props) => {
   const { id } = params;
+  const { onOpen } = useModalResult();
 
   const [resCvDetail, setResCVDetail] = useState<API.ResponseCvDetail>();
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvToJds>();
+  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvAndJd>();
 
   useEffect(() => {
     getCvDetail(id)
@@ -52,7 +54,7 @@ const Page = ({ params }: Props) => {
 
   type PositionType = "right";
   const OperationsSlot: Record<PositionType, React.ReactNode> = {
-    right: <Button>AI Analysis</Button>,
+    right: <Button loading={false} type="primary" onClick={onOpen}>Analyze Score</Button>,
   };
 
   const slot = useMemo(() => {
@@ -73,7 +75,7 @@ const Page = ({ params }: Props) => {
     {
       key: "2",
       label: "Matching JDs",
-      children: !resMatching ? null : <MatchingJD data={resMatching.data ?? []} />,
+      children: !resMatching ? null : <MatchingJD cv_id={Number(id)} jd_ids={resMatching.ids} data={resMatching.data ?? []} />,
     },
   ];
 
@@ -84,7 +86,7 @@ const Page = ({ params }: Props) => {
           defaultActiveKey="1"
           items={items}
           onChange={handleTabChange}
-          tabBarExtraContent={slot}
+          // tabBarExtraContent={slot}
         />
       }
     </div>

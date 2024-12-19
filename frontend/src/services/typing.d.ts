@@ -3,6 +3,21 @@
 
 declare namespace API {
 
+  type ResponseResultAnalyze = {
+    data: ResultAnalyzeItem[];
+    message?: string;
+    count?: number;
+  }
+
+  type ResultAnalyzeItem = {
+    name?: string;
+    overall_score?: number;
+    tech_stack?: number;
+    experience?: number;
+    language?: number;
+    leadership?: number;
+  }
+
   type ResponseGetListCV = {
     message: string;
     data: CvItem[];
@@ -24,9 +39,10 @@ declare namespace API {
     data: JdItem;
   }
 
-  type ResponseMatchingCvToJds = {
+  type ResponseMatchingCvAndJd = {
     message: string;
     data: JdItem[];
+    ids: number[];
     count: number;
   }
 
