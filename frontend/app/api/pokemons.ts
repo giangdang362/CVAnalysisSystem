@@ -1,4 +1,4 @@
-import { getApi } from "@/axios/method";
+import { getApi } from "@/src/services/axios/method";
 import axios from "axios";
 import { IPokemonDetailResponse, IPokemonResponse } from "./JD/type";
 

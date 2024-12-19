@@ -1,4 +1,4 @@
-import { FormatDateTime } from "@/util/common";
+import { FormatDateTime } from "@/src/util/common";
 import { ColumnsType } from "antd/es/table";
 
 export const columns = (

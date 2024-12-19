@@ -4,10 +4,10 @@ import NavBreadcrumb from "@/components/nav-breadcrumb/page";
 import HeaderPage from "@/components/layout/header/page";
 import SiderPage from "@/components/layout/sidebar/page";
 
-import { cn } from "@/lib/utils";
-import { useCollapse } from "@/hooks/use-collapse-store";
-import { useSettingStore } from "@/hooks/use-setting-store";
-import { useThemeToken } from "@/theme/use-theme-token";
+import { cn } from "@/src/lib/utils";
+import { useCollapse } from "@/src/hooks/use-collapse-store";
+import { useSettingStore } from "@/src/hooks/use-setting-store";
+import { useThemeToken } from "@/src/theme/use-theme-token";
 
 import { ThemeMode } from "@/types";
 

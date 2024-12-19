@@ -14,10 +14,10 @@ import { PiReadCvLogoFill } from "react-icons/pi";
 import { SiOpenjdk } from "react-icons/si";
 import { MdDashboard } from "react-icons/md";
 
-import { cn } from "@/lib/utils";
-import { onStart } from "@/lib/router-events/events";
-import { useCollapse } from "@/hooks/use-collapse-store";
-import { APP_ROUTES } from "@/common/routes";
+import { cn } from "@/src/lib/utils";
+import { onStart } from "@/src/lib/router-events/events";
+import { useCollapse } from "@/src/hooks/use-collapse-store";
+import { APP_ROUTES } from "@/src/configs/routes";
 
 type MenuItem = Required<MenuProps>["items"][number];
 

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 
 import { columns } from "./column";
-import { useModal } from "@/hooks/use-modal-store";
+import { useModal } from "@/src/hooks/use-modal-store";
 import ModalComponent from "./CreateUpdateModal";
 import { getCVList } from "@/src/services/cv";
 

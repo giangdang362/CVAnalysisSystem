@@ -8,7 +8,7 @@ import {
   Select,
 } from "antd";
 
-import { useModal } from "@/hooks/use-modal-store";
+import { useModal } from "@/src/hooks/use-modal-store";
 
 const { Option } = Select;
 const { TextArea } = Input;

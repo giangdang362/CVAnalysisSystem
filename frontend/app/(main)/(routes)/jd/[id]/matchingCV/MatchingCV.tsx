@@ -3,7 +3,7 @@
 import React from "react";
 import { Table } from "antd";
 
-import { useModalResult } from "@/hooks/use-modal-store";
+import { useModalResult } from "@/src/hooks/use-modal-store";
 import { columns } from "./columns";
 import ModalCVDetail from "../ModalCVDetail";
 

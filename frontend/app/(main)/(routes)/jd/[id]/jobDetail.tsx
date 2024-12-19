@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { convertString } from "@/util/convertString";
+import { convertString } from "@/src/util/convertString";
 
 interface Props {
   item: API.JdItem;

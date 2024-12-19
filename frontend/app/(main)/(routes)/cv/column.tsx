@@ -1,5 +1,5 @@
-import { APP_ROUTES } from "@/common/routes";
-import { FormatDateTime } from "@/util/common";
+import { APP_ROUTES } from "@/src/configs/routes";
+import { FormatDateTime } from "@/src/util/common";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 import { ColumnsType } from "antd/es/table";

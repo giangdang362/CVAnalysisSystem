@@ -6,7 +6,7 @@ import CvDetail from "./applicantDetail";
 import { getCvDetail } from "@/src/services/cv";
 import { getMatchingCvToJds } from "@/src/services/matching";
 import MatchingJD from "./matchingJD/MatchingJD";
-import { useModalResult } from "@/hooks/use-modal-store";
+import { useModalResult } from "@/src/hooks/use-modal-store";
 
 interface Props {
   params: {

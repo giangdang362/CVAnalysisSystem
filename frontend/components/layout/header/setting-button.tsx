@@ -10,9 +10,9 @@ import { CloseOutlined, SettingOutlined } from "@ant-design/icons";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import SettingIcon from "@/public/svgs/setting.svg";
 
-import { useThemeToken } from "@/theme/use-theme-token";
-import { useSettingStore } from "@/hooks/use-setting-store";
-import { colorPrimarys } from "@/theme/antd/theme";
+import { useThemeToken } from "@/src/theme/use-theme-token";
+import { useSettingStore } from "@/src/hooks/use-setting-store";
+import { colorPrimarys } from "@/src/theme/antd/theme";
 
 import { ThemeMode } from "@/types";
 

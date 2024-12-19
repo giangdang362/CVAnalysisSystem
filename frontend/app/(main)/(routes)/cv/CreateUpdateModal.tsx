@@ -11,7 +11,7 @@ import {
   UploadProps,
 } from "antd";
 
-import { useModal } from "@/hooks/use-modal-store";
+import { useModal } from "@/src/hooks/use-modal-store";
 import { UploadOutlined } from "@ant-design/icons";
 
 const { Option } = Select;

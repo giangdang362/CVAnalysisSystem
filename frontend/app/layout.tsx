@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 
-import StyledComponentsRegistry from "@/theme/AntdRegistry";
-import { HandleOnComplete } from "@/lib/router-events";
-import ThemeProvider from "@/theme/theme-provider";
+import StyledComponentsRegistry from "@/src/theme/AntdRegistry";
+import { HandleOnComplete } from "@/src/lib/router-events";
+import ThemeProvider from "@/src/theme/theme-provider";
 
 const font = Open_Sans({ subsets: ["latin"] });
 

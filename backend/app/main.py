@@ -14,6 +14,8 @@ from app.invoke_gemini import invoke_gemini_api
 import re
 from fastapi.staticfiles import StaticFiles
 from PyPDF2 import PdfReader
+from pydantic import BaseModel
+from typing import List
 
 # Load environment variables
 load_dotenv()
@@ -212,14 +214,17 @@ async def match_jd_to_cvs(jd_id: int, db: Session = Depends(get_db)):
     ids = [item.id for item in matching_cvs]
     return {"message": "success", "data": matching_cvs, "ids": ids, "count": len(matching_cvs)}
 
+class RankRequest(BaseModel):
+    cv_id: int
+    jd_ids: List[int]
 @app.post("/matching/cv-to-jds/rank", tags=["Matching"])
-async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depends(get_db)):
+async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db)):
     try:
-        cv = db.query(CV).filter(CV.id == cv_id).first()
+        cv = db.query(CV).filter(CV.id == payload.cv_id).first()
         if not cv:
             raise HTTPException(status_code=404, detail="CV not found")
 
-        jds = db.query(JD).filter(JD.id.in_(jd_ids)).all()
+        jds = db.query(JD).filter(JD.id.in_(payload.jd_ids)).all()
         if not jds:
             raise HTTPException(status_code=404, detail="No JDs found")
 
@@ -282,20 +287,23 @@ async def rank_cv_against_jds(cv_id: int, jd_ids: List[int], db: Session = Depen
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class RankJdToCvsRequest(BaseModel):
+    jd_id: int
+    cv_ids: List[int]
 @app.post("/matching/jd-to-cvs/rank", tags=["Matching"])
 async def rank_jd_against_cvs(
-    jd_id: int, cv_ids: List[int], db: Session = Depends(get_db)
+    payload: RankJdToCvsRequest, db: Session = Depends(get_db)
 ):
     """
     Rank a JD against a list of CVs based on scoring criteria.
     """
     try:
         # Fetch JD details
-        jd = db.query(JD).filter(JD.id == jd_id).first()
+        jd = db.query(JD).filter(JD.id == payload.jd_id).first()
         if not jd:
             raise HTTPException(status_code=404, detail="JD not found")
 
-        cvs = db.query(CV).filter(CV.id.in_(cv_ids)).all()
+        cvs = db.query(CV).filter(CV.id.in_(payload.cv_ids)).all()
         if not cvs:
             raise HTTPException(status_code=404, detail="No CVs found with the provided IDs")
 

@@ -1,4 +1,4 @@
-import api from "@/axios";
+import api from "@/src/services/axios";
 
 type PayloadGetAnalyze = {
   cv_id: number;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Modal, Table, TableProps } from "antd";
-import { useModalResult } from "@/hooks/use-modal-store";
+import { useModalResult } from "@/src/hooks/use-modal-store";
 import ScoreButton from "@/components/ScoreButton";
 
 const columns: TableProps<API.ResultAnalyzeItem>["columns"] = [

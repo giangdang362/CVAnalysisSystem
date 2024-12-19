@@ -2,7 +2,7 @@
 
 import { Modal, Table, TableProps } from "antd";
 
-import { useModalResult } from "@/hooks/use-modal-store";
+import { useModalResult } from "@/src/hooks/use-modal-store";
 
 interface DataType {
   key: string;

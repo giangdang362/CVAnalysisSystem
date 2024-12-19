@@ -6,7 +6,7 @@ import ModalResult from "../ModalResult";
 import { columns } from "./column";
 import { getAnalyzeResult } from "@/src/services/matching";
 import { SearchOutlined } from "@ant-design/icons";
-import { useModalResult } from "@/hooks/use-modal-store";
+import { useModalResult } from "@/src/hooks/use-modal-store";
 
 const dataTable: API.ResultAnalyzeItem[] = [
   {
