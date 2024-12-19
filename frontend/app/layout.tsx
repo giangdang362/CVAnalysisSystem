@@ -9,8 +9,8 @@ import ThemeProvider from "@/theme/theme-provider";
 const font = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nextjs Admin",
-  description: "Nextjs Admin Template",
+  title: "AI Say Hi",
+  description: "AI Say Hi",
 };
 
 export default function RootLayout({

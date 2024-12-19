@@ -29,25 +29,25 @@ const ModalComponent = () => {
     form.resetFields();
   };
 
-  const props: UploadProps = {
-    name: "file",
-    action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-    headers: {
-      authorization: "authorization-text",
-    },
-    onChange(info) {
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === "done") {
-        message.success(`${info.file.name} file uploaded successfully`);
-        form.setFieldValue("file_url", "this's a path file"); // handle get and set path file form response after upload
-      } else if (info.file.status === "error") {
-        message.error(`${info.file.name} file upload failed.`);
-        form.setFieldValue("file_url", "this's a path file"); // handle get and set path file form response after upload
-      }
-    },
-  };
+  // const props: UploadProps = {
+  //   name: "file",
+  //   action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+  //   headers: {
+  //     authorization: "authorization-text",
+  //   },
+  //   onChange(info) {
+  //     if (info.file.status !== "uploading") {
+  //       console.log(info.file, info.fileList);
+  //     }
+  //     if (info.file.status === "done") {
+  //       message.success(`${info.file.name} file uploaded successfully`);
+  //       form.setFieldValue("file_url", "this's a path file"); // handle get and set path file form response after upload
+  //     } else if (info.file.status === "error") {
+  //       message.error(`${info.file.name} file upload failed.`);
+  //       form.setFieldValue("file_url", "this's a path file"); // handle get and set path file form response after upload
+  //     }
+  //   },
+  // };
 
   return (
     <Modal
@@ -128,14 +128,14 @@ const ModalComponent = () => {
             </Form.Item>
             <Form.Item
               label="Expected salary"
-              name="expected_salary"
+              name="expect_salary"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Input allowClear placeholder="Enter Expected salary" />
+              <Input type="number" allowClear placeholder="Enter Expected salary" />
             </Form.Item>
           </div>
           <div className="w-full">
@@ -154,7 +154,7 @@ const ModalComponent = () => {
                 rows={8}
               />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               label="Date added"
               name="date_added"
               rules={[
@@ -164,17 +164,17 @@ const ModalComponent = () => {
               ]}
             >
               <Input type="date" allowClear placeholder="Enter placeholder" />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item
               label="Upload CV"
-              name="file_url"
+              name="file"
               rules={[
                 {
                   required: true,
                 },
               ]}
             >
-              <Upload {...props}>
+              <Upload>
                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
               </Upload>
             </Form.Item>
