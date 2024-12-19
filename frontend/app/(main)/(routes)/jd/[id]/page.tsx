@@ -52,7 +52,7 @@ const Page = ({ params }: Props) => {
     {
       key: "2",
       label: "List of applicant",
-      children: !resMatching ? null : <MatchingCV data={resMatching.data ?? []} />,
+      children: !resMatching ? null : <MatchingCV jd_id={id} cv_ids={resMatching.ids} data={resMatching.data ?? []} />,
     },
   ] as const;
 
@@ -83,7 +83,7 @@ const Page = ({ params }: Props) => {
         defaultActiveKey="1"
         items={items}
         onChange={handleTabChange}
-        tabBarExtraContent={slot}
+        // tabBarExtraContent={slot}
       />
     </div>
   );

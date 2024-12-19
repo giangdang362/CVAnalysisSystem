@@ -4,93 +4,10 @@ import React, { useState } from "react";
 import { Button, Input, message, Table } from "antd";
 import ModalResult from "../ModalResult";
 import { columns } from "./column";
-import { getAnalyzeResult } from "@/src/services/matching";
+import { getAnalyzeResultCvToJds } from "@/src/services/matching";
 import { SearchOutlined } from "@ant-design/icons";
 import { useModalResult } from "@/src/hooks/use-modal-store";
-
-const dataTable: API.ResultAnalyzeItem[] = [
-  {
-    "name": "AI Researcher 7y",
-    "overall_score": 75,
-    "tech_stack": 80,
-    "experience": 40,
-    "language": 100,
-    "leadership": 90
-  },
-  {
-    "name": "QA Tester 1y",
-    "overall_score": 65,
-    "tech_stack": 50,
-    "experience": 70,
-    "language": 90,
-    "leadership": 20
-  },
-  {
-    "name": "DevOps Engineer 5y",
-    "overall_score": 58,
-    "tech_stack": 50,
-    "experience": 100,
-    "language": 30,
-    "leadership": 40
-  },
-  {
-    "name": "Mobile Developer 3y",
-    "overall_score": 46,
-    "tech_stack": 80,
-    "experience": 20,
-    "language": 50,
-    "leadership": 10
-  },
-  {
-    "name": "UX Designer 2y",
-    "overall_score": 42,
-    "tech_stack": 50,
-    "experience": 0,
-    "language": 70,
-    "leadership": 60
-  },
-  {
-    "name": "Senior Frontend 2y",
-    "overall_score": 40,
-    "tech_stack": 10,
-    "experience": 10,
-    "language": 100,
-    "leadership": 40
-  },
-  {
-    "name": "Fullstack Developer 6y",
-    "overall_score": 40,
-    "tech_stack": 50,
-    "experience": 10,
-    "language": 40,
-    "leadership": 100
-  },
-  {
-    "name": "Data Scientist 4y",
-    "overall_score": 38,
-    "tech_stack": 10,
-    "experience": 60,
-    "language": 50,
-    "leadership": 20
-  },
-  {
-    "name": "Junior Backend 1y",
-    "overall_score": 24,
-    "tech_stack": 10,
-    "experience": 50,
-    "language": 10,
-    "leadership": 30
-  },
-  {
-    "name": "Product Manager 3y",
-    "overall_score": 15,
-    "tech_stack": 30,
-    "experience": 0,
-    "language": 0,
-    "leadership": 60
-  }
-]
-
+import { Bounce, toast } from "react-toastify";
 
 const MatchingJD = ({ data, cv_id, jd_ids }: {
   data: API.JdItem[],
@@ -104,8 +21,26 @@ const MatchingJD = ({ data, cv_id, jd_ids }: {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await getAnalyzeResult({ cv_id, jd_ids });
+      const res = await getAnalyzeResultCvToJds({ cv_id, jd_ids });
+      if (res.data.length) {
+        toast.success("Analyzed success!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+      }
       setRes(res);
+      if (res.data.length) {
+        setTimeout(() => {
+          onOpen()
+        }, 500)
+      }
     } catch (error) {
       message.error("Error. Please try again!");
     }
@@ -139,7 +74,7 @@ const MatchingJD = ({ data, cv_id, jd_ids }: {
         columns={columns()}
         dataSource={data}
       />
-      <ModalResult data={res?.data ?? dataTable} />
+      <ModalResult data={res?.data ?? []} />
     </div>
   );
 };

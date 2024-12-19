@@ -1,8 +1,13 @@
 import api from "@/src/services/axios";
 
-type PayloadGetAnalyze = {
+type PayloadGetAnalyzeCvToJds = {
   cv_id: number;
   jd_ids: number[];
+}
+
+type PayloadGetAnalyzeJdToCvs = {
+  jd_id: number;
+  cv_ids: number[];
 }
 
 export const getMatchingCvToJds = async (id: number): Promise<API.ResponseMatchingCvAndJd> => {
@@ -15,7 +20,12 @@ export const getMatchingJdToCvs = async (id: number): Promise<API.ResponseMatchi
   return response.data;
 };
 
-export const getAnalyzeResult = async (payload: PayloadGetAnalyze): Promise<API.ResponseResultAnalyze> => {
+export const getAnalyzeResultCvToJds = async (payload: PayloadGetAnalyzeCvToJds): Promise<API.ResponseResultAnalyze> => {
   const response = await api.post(`/matching/cv-to-jds/rank`, payload);
+  return response.data;
+};
+
+export const getAnalyzeResultJdToCvs = async (payload: PayloadGetAnalyzeJdToCvs): Promise<API.ResponseResultAnalyze> => {
+  const response = await api.post(`/matching/jd-to-cvs/rank`, payload);
   return response.data;
 };

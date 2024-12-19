@@ -2,7 +2,7 @@ import { FormatDateTime } from "@/src/util/common";
 import { ColumnsType } from "antd/es/table";
 
 export const columns = (
-  onOpen: () => void
+  onOpen?: () => void
 ): ColumnsType<API.CvItem> => {
   return [
     {
@@ -12,13 +12,13 @@ export const columns = (
       render: (_, __, index) => <span>{index + 1}</span>,
     },
     {
-      title: "name",
+      title: "Name",
       dataIndex: "name",
       key: "name",
       render: (_, original) => (
         <div
           className="!text-blue-500 cursor-pointer hover:!text-blue-700"
-          onClick={onOpen}
+          // onClick={onOpen}
         >
           {original?.name}
         </div>
@@ -43,7 +43,7 @@ export const columns = (
       align: "center",
     },
     {
-      title: "experience summary",
+      title: "Experience summary",
       dataIndex: "experience_summary",
       key: "experience_summary",
       align: "center",

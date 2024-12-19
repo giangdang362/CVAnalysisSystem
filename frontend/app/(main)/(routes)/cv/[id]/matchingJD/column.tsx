@@ -11,7 +11,7 @@ export const columns = (
       render: (_, __, index) => <span>{index + 1}</span>,
     },
     {
-      title: "Job name",
+      title: "Name",
       dataIndex: "name",
       key: "name",
       align: "center",

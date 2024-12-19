@@ -1,24 +1,83 @@
 "use client";
 
-import React from "react";
-import { Table } from "antd";
+import React, { useState } from "react";
+import { Button, Input, message, Table } from "antd";
+
 
 import { useModalResult } from "@/src/hooks/use-modal-store";
 import { columns } from "./columns";
-import ModalCVDetail from "../ModalCVDetail";
+import { getAnalyzeResultJdToCvs } from "@/src/services/matching";
+import { SearchOutlined } from "@ant-design/icons";
+import ModalResult from "../../../cv/[id]/ModalResult";
+import { Bounce, toast } from "react-toastify";
 
-const MatchingCV = ({data}: {data: API.CvItem[]}) => {
+const MatchingCV = ({ data, jd_id, cv_ids }: {
+  data: API.JdItem[],
+  jd_id: number;
+  cv_ids: number[];
+}) => {
   const { onOpen } = useModalResult();
+  const [res, setRes] = useState<API.ResponseResultAnalyze>();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await getAnalyzeResultJdToCvs({ jd_id, cv_ids });
+      if (res.data.length) {
+        toast.success("Analyzed success!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+          });
+      }
+      setRes(res);
+      if (res.data.length) {
+        setTimeout(() => {
+          onOpen()
+        }, 500)
+      }
+    } catch (error) {
+      message.error("Error. Please try again!");
+    }
+    setLoading(false);
+  };
+
+  const handleAnalyze = () => {
+    fetchData();
+  }
 
   return (
     <div>
+      <div className="flex justify-between">
+        <Input
+          style={{
+            width: '300px',
+            marginBottom: '24px',
+          }}
+          placeholder="Search by name"
+          prefix={<SearchOutlined />}
+          // onChange={(e) => handleNameChange(e.target.value)}
+          allowClear
+        />
+        <div className="flex justify-between gap-3">
+          <Button loading={loading} type="primary" disabled={res?.data.length ? true : false} onClick={handleAnalyze}>Analyze Score</Button>
+          <Button type="primary" onClick={onOpen} disabled={res?.data.length ? false : true}>View Result</Button>
+        </div>
+      </div>
       <Table
         // loading={loading}
-        columns={columns(onOpen)}
+        columns={columns()}
         dataSource={data}
       />
 
-      <ModalCVDetail />
+      <ModalResult data={res?.data ?? []} />
     </div>
   );
 };
