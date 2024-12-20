@@ -7,7 +7,7 @@ interface Props {
 }
 
 const CvDetail = ({ item }: Props) => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_AWS_URL;
 
   return (
     <div>
@@ -20,7 +20,11 @@ const CvDetail = ({ item }: Props) => {
           <span className="font-bold">Recruiter:</span> {item.recruiter}
         </p>
       </div>
-      <embed src={`${baseUrl}/${item.path_file}`} className="w-full h-[calc(60dvh)]" />
+      <iframe
+        src={`https://docs.google.com/gview?url=${baseUrl}/${item.path_file}&embedded=true`}
+        className="w-full h-[calc(60dvh)]"
+        frameBorder={0}
+      />
     </div>
   );
 };
