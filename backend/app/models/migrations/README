@@ -1,0 +1,9 @@
+Generic single-database configuration.
+
+
+
+# Generate file migration:
+alembic revision --autogenerate -m "Update models"
+
+# Apply migration:
+alembic upgrade head

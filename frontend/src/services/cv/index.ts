@@ -10,3 +10,12 @@ export const getCvDetail = async (id: number): Promise<API.ResponseCvDetail> => 
   return response.data;
 };
 
+export const postNewCv = async (payload: API.CvItem) => {
+  const response = await api.post("/cv/create", payload);
+  return response.data;
+}
+
+export const putCv = async (payload: API.CvItem) => {
+  const response = await api.post(`/cv/edit/${payload.id}`, payload);
+  return response.data;
+}

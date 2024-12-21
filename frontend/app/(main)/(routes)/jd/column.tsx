@@ -4,7 +4,16 @@ import { Button } from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 
-export const columns = (): ColumnsType<API.JdItem> => {
+export const columns = (
+  handleSetCurItem: (x: API.JdItem) => void,
+  handleSetShowModalForm: () => void,
+  handleReload: () => void,
+): ColumnsType<API.JdItem> => {
+  const handleClickEdit = (x: API.JdItem) => {
+    handleSetCurItem(x);
+    handleSetShowModalForm();
+    handleReload();
+  };
   return [
     {
       title: "#",
@@ -65,10 +74,18 @@ export const columns = (): ColumnsType<API.JdItem> => {
       title: "Action",
       key: "Action",
       align: "center",
-      render: () => <div className="flex items-center justify-evenly">
-        <Button icon={<EditOutlined />} />
-        <Button icon={<DeleteOutlined />} />
-      </div>
+      render: (_, original) =>
+        <div
+          style={{
+            display: 'flex',
+            gap: '6px',
+          }}
+        >
+          <Button onClick={() => {
+            handleClickEdit(original);
+          }} icon={<EditOutlined />} />
+          <Button icon={<DeleteOutlined />} />
+        </div>
     },
   ];
 };

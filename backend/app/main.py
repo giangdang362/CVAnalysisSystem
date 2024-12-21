@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, UploadFile, File, HTTPException
+from fastapi import FastAPI, Depends, UploadFile, File, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
@@ -7,15 +7,18 @@ from datetime import datetime
 from app.models import CV, JD  # Assuming models are in app.models
 from dotenv import load_dotenv
 from docx import Document  # To handle docx files
-from anthropic import HUMAN_PROMPT, AI_PROMPT  # For Claude API
 # from app.invoke_bedrock import invoke_api
 from app.invoke_gemini import invoke_gemini_api
 import uuid, os, boto3
-from fastapi.staticfiles import StaticFiles
 from PyPDF2 import PdfReader
 from pydantic import BaseModel
 from typing import List
 from botocore.exceptions import ClientError
+import logging
+from app.models.schemas import CvCreateSchema, CvSchema, JdCreateSchema, JdSchema
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 # Load environment variables
 load_dotenv()
@@ -64,6 +67,21 @@ PROMPT_FILE= "app/configs/prompt.docx"
 async def root():
     return {"message": "Welcome to CV and JD Analysis System"}
 
+from sqlalchemy.sql import text
+
+@app.get("/roles", tags=["Role Management"])
+async def get_roles(db: Session = Depends(get_db)):
+    """Get a list of all roles from the enum 'role_type'"""
+    try:
+        # Truy vấn lấy danh sách các giá trị enum từ database
+        query = text("SELECT unnest(enum_range(NULL::role_type)) AS role;")
+        result = db.execute(query).fetchall()
+        role_list = [row[0] for row in result]
+
+        return {"message": "success", "data": role_list, "count": len(role_list)}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
 @app.get("/cv/{id}", tags=["CV Management"])
 async def get_cv_by_id(id: int, db: Session = Depends(get_db)):
     """
@@ -90,38 +108,22 @@ async def get_jd_by_id(id: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/cv", tags=["CV Management"])
+@app.post("/cv/create", tags=["CV Management"], response_model=CvSchema)
 async def add_cv(
-    name: str,
-    applicant_name: str,
-    expect_salary: int,
-    education: str,
-    role: str,
-    recruiter: str,
-    experience_summary: str,
-    file: UploadFile = File(...),
+    payload: CvCreateSchema = Body(...),
     db: Session = Depends(get_db),
 ):
-    """Add a new CV and upload the file to S3"""
     try:
-        # Gọi hàm hỗ trợ upload_file_s3 để upload file lên S3
-        upload_result = await upload_file_s3(file, "cv")
-        if "error" in upload_result:
-            raise HTTPException(status_code=500, detail=upload_result["error"])
-
-        # Lấy S3 path từ kết quả trả về của hàm upload_file_s3
-        s3_path = upload_result["s3_path"]
 
         # Thêm CV record vào database
         new_cv = CV(
-            name=name,
-            applicant_name=applicant_name,
-            path_file=s3_path,  # Lưu đường dẫn S3
-            expect_salary=expect_salary,
-            education=education,
-            role=role,
-            recruiter=recruiter,
-            experience_summary=experience_summary,
+            name=payload.name,
+            path_file=payload.path_file,  # Lưu đường dẫn S3
+            expect_salary=payload.expect_salary,
+            role=payload.role,
+            education=payload.education,
+            recruiter=payload.recruiter,
+            experience_summary=payload.experience_summary,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         )
@@ -129,9 +131,12 @@ async def add_cv(
         db.commit()
         db.refresh(new_cv)
 
-        return {"status": "success", "cv": new_cv}
+        return new_cv
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        logger.error(f"Error while creating CV: {str(e)}")  # Log lỗi debug
+        raise HTTPException(
+            status_code=500, detail="An error occurred while creating CV."
+        )
 
 @app.get("/cv", tags=["CV Management"])
 async def get_all_cvs(db: Session = Depends(get_db)):
@@ -139,40 +144,23 @@ async def get_all_cvs(db: Session = Depends(get_db)):
     cvs = db.query(CV).all()
     return {"message": "success", "data": cvs, "count": len(cvs)}
 
-@app.post("/jd", tags=["JD Management"])
+@app.post("/jd/create", tags=["JD Management"], response_model=JdSchema)
 async def add_jd(
-    name: str,
-    company_name: str,
-    role: str,
-    level: str,
-    languages: str,
-    technical_skill: str,
-    requirement: str,
-    description: str,
-    file: UploadFile = File(...),
+    payload: JdCreateSchema = Body(...),
     db: Session = Depends(get_db),
 ):
-    """Add a new JD and upload the file to S3"""
     try:
-        # Gọi hàm hỗ trợ upload_file_s3 để upload file lên S3
-        upload_result = await upload_file_s3(file, "jd")
-        if "error" in upload_result:
-            raise HTTPException(status_code=500, detail=upload_result["error"])
-
-        # Lấy S3 path từ kết quả trả về của hàm upload_file_s3
-        s3_path = upload_result["s3_path"]
-
         # Thêm JD record vào database
         new_jd = JD(
-            name=name,
-            path_file=s3_path,  # Lưu đường dẫn S3
-            company_name=company_name,
-            role=role,
-            level=level,
-            languages=languages,
-            technical_skill=technical_skill,
-            requirement=requirement,
-            description=description,
+            name=payload.name,
+            path_file=payload.path_file,  # Lưu đường dẫn S3
+            company_name=payload.company_name,
+            role=payload.role,
+            level=payload.level,
+            languages=payload.languages,
+            technical_skill=payload.technical_skill,
+            requirement=payload.requirement,
+            description=payload.description,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow(),
         )
@@ -180,9 +168,12 @@ async def add_jd(
         db.commit()
         db.refresh(new_jd)
 
-        return {"status": "success", "jd": new_jd}
+        return new_jd
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        logger.error(f"Error while creating JD: {str(e)}")  # Log lỗi debug
+        raise HTTPException(
+            status_code=500, detail="An error occurred while creating JD."
+        )
 
 @app.get("/jd", tags=["JD Management"])
 async def get_all_jds(db: Session = Depends(get_db)):
@@ -376,7 +367,11 @@ async def rank_jd_against_cvs(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-async def upload_file_s3(file: UploadFile = File(...), path: str = "cv"):
+@app.post("/upload/{path}", tags=["Upload File to S3"])
+async def upload_file_s3(
+    path: str,
+    file: UploadFile = File(...)
+    ):
     # Tạo unique filename
     file_name = f"{uuid.uuid4()}-{file.filename}"
     s3_path = f"{path}/{file_name}"
@@ -387,7 +382,7 @@ async def upload_file_s3(file: UploadFile = File(...), path: str = "cv"):
         # Trả lại path để lưu vào DB
         return {"s3_path": s3_path, "message": "File uploaded successfully"}
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=f"Error uploading file: {str(e)}")
 
 # Hàm đọc file trực tiếp từ S3
 def read_file_from_s3(path_file: str):

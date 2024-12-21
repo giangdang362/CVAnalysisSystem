@@ -6,7 +6,7 @@ import { Button, Input, message, Table } from "antd";
 
 import { useModalResult } from "@/src/hooks/use-modal-store";
 import { columns } from "./columns";
-import { getAnalyzeResultJdToCvs } from "@/src/services/matching";
+import { getAnalyzeResultJdToCvs } from "@/src/services";
 import { SearchOutlined } from "@ant-design/icons";
 import ModalResult from "../../../cv/[id]/ModalResult";
 import { Bounce, toast } from "react-toastify";
@@ -20,34 +20,38 @@ const MatchingCV = ({ data, jd_id, cv_ids }: {
   const [res, setRes] = useState<API.ResponseResultAnalyze>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const fetchData = async () => {
+  const fetchData = () => {
     setLoading(true);
-    try {
-      const res = await getAnalyzeResultJdToCvs({ jd_id, cv_ids });
-      if (res.data.length) {
-        toast.success("Analyzed success!", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Bounce,
+    getAnalyzeResultJdToCvs({ jd_id, cv_ids })
+      .then((res) => {
+        if (res.data.length) {
+          toast.success("Analyzed success!", {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
           });
-      }
-      setRes(res);
-      if (res.data.length) {
-        setTimeout(() => {
-          onOpen()
-        }, 500)
-      }
-    } catch (error) {
-      message.error("Error. Please try again!");
-    }
-    setLoading(false);
+        }
+        setRes(res);
+        if (res.data.length) {
+          setTimeout(() => {
+            onOpen();
+          }, 500);
+        }
+      })
+      .catch(() => {
+        message.error("Error. Please try again!");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+  
 
   const handleAnalyze = () => {
     fetchData();

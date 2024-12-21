@@ -34,7 +34,12 @@ systemctl restart docker
 
 # Truy cập db
 
+## Local
 docker exec -it ai-say-hi psql -U aisayhi -d aisayhi
+
+## DB trên Aws
+
+docker run -it --rm postgres psql -h aisayhi-instance-1.cjmsggswgi53.us-east-1.rds.amazonaws.com -U aisayhi -d aisayhi
 
 # Kiểm tra Logs nếu gặp lỗi về docker
 

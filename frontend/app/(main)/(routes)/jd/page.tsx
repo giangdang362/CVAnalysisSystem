@@ -3,35 +3,38 @@
 import { Button, ConfigProvider, message, Table } from "antd";
 import { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
-
 import { columns } from "./column";
-import { useModal } from "@/src/hooks/use-modal-store";
-import CreateUpdateModal from "./CreateUpdateModal";
+import CreateUpdateForm from "./CreateUpdateForm";
 import { getJDList } from "@/src/services/jd";
 
 const TablePage = () => {
   const [res, setRes] = useState<API.ResponseGetListJD>();
+  const [curItem, setCurItem] = useState<API.JdItem>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [reload, setReload] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
-  const { onOpen } = useModal();
-
-  const showModal = () => {
-    onOpen();
+  const handleSetCurItem = (x: API.JdItem) => {
+    setCurItem(x);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await getJDList();
+  const handleGetJDList = () => {
+    setLoading(true);
+    getJDList()
+      .then((res) => {
         setRes(res);
-      } catch (error) {
+      })
+      .catch(() => {
         message.error("Error. Please try again!");
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
+  useEffect(() => {
+    handleGetJDList();
+  }, [reload, ]);
 
   return (
     <ConfigProvider
@@ -48,18 +51,36 @@ const TablePage = () => {
           shape="round"
           icon={<PlusOutlined />}
           size={"middle"}
-          onClick={showModal}
+          onClick={() => setShowModal(true)}
         >
           Add new JD
         </Button>
       </div>
 
       <Table
-        loading={loading}
-        columns={columns()}
         dataSource={res?.data}
+        loading={loading}
+        pagination={{
+          showQuickJumper: true,
+          defaultCurrent: 1,
+          defaultPageSize: 10,
+          total: res?.count ?? 0,
+        }}
+        columns={
+          columns(
+            handleSetCurItem,
+            () => setShowModal(true),
+            () => setReload((pre) => !pre)
+          )
+        }
       />
-      <CreateUpdateModal />
+      <CreateUpdateForm
+        curItem={curItem}
+        setCurItem={setCurItem}
+        setReload={setReload}
+        showModal={showModal}
+        setShowModal={setShowModal}
+      />
     </ConfigProvider>
   );
 };

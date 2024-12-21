@@ -5,33 +5,37 @@ import { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 
 import { columns } from "./column";
-import { useModal } from "@/src/hooks/use-modal-store";
-import ModalComponent from "./CreateUpdateModal";
 import { getCVList } from "@/src/services/cv";
+import CreateUpdateForm from "./CreateUpdateForm";
 
 const TablePage = () => {
   const [res, setRes] = useState<API.ResponseGetListCV>();
+  const [curItem, setCurItem] = useState<API.CvItem>({});
   const [loading, setLoading] = useState<boolean>(false);
+  const [reload, setReload] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
-  const { onOpen } = useModal();
-
-  const showModal = () => {
-    onOpen();
+  const handleSetCurItem = (x: API.CvItem) => {
+    setCurItem(x);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const res = await getCVList();
+  const handleGetCVList = () => {
+    setLoading(true);
+    getCVList()
+      .then((res) => {
         setRes(res);
-      } catch (error) {
+      })
+      .catch(() => {
         message.error("Error. Please try again!");
-      }
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
+  useEffect(() => {
+    handleGetCVList();
+  }, [reload]);
 
   return (
     <ConfigProvider
@@ -48,18 +52,36 @@ const TablePage = () => {
           shape="round"
           icon={<PlusOutlined />}
           size={"middle"}
-          onClick={showModal}
+          onClick={() => setShowModal(true)}
         >
           Add new CV
         </Button>
       </div>
 
       <Table
-        loading={loading}
-        columns={columns()}
         dataSource={res?.data}
+        loading={loading}
+        pagination={{
+          showQuickJumper: true,
+          defaultCurrent: 1,
+          defaultPageSize: 10,
+          total: res?.count ?? 0,
+        }}
+        columns={
+          columns(
+            handleSetCurItem,
+            () => setShowModal(true),
+            () => setReload((pre) => !pre)
+          )
+        }
       />
-      <ModalComponent />
+      <CreateUpdateForm
+        curItem={curItem}
+        setCurItem={setCurItem}
+        setReload={setReload}
+        showModal={showModal}
+        setShowModal={setShowModal}
+      />
     </ConfigProvider>
   );
 };

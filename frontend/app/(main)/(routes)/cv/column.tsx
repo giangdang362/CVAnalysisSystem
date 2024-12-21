@@ -5,7 +5,16 @@ import { Button } from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 
-export const columns = (): ColumnsType<API.CvItem> => {
+export const columns = (
+  handleSetCurItem: (x: API.CvItem) => void,
+  handleSetShowModalForm: () => void,
+  handleReload: () => void,
+): ColumnsType<API.CvItem> => {
+  const handleClickEdit = (x: API.CvItem) => {
+    handleSetCurItem(x);
+    handleSetShowModalForm();
+    handleReload();
+  };
   return [
     {
       title: "#",
@@ -66,16 +75,24 @@ export const columns = (): ColumnsType<API.CvItem> => {
       dataIndex: "created_at",
       key: "created_at",
       align: "center",
-      render: (_,original) => <>{FormatDateTime(original.created_at)}</>
+      render: (_, original) => <>{FormatDateTime(original.created_at)}</>
     },
     {
       title: "Action",
       key: "Action",
       align: "center",
-      render: () => <div className="flex items-center justify-evenly">
-        <Button icon={<EditOutlined />} />
-        <Button icon={<DeleteOutlined />} />
-      </div>
+      render: (_, original) =>
+        <div
+          style={{
+            display: 'flex',
+            gap: '6px',
+          }}
+        >
+          <Button onClick={() => {
+            handleClickEdit(original);
+          }} icon={<EditOutlined />} />
+          <Button icon={<DeleteOutlined />} />
+        </div>
     },
   ];
 };

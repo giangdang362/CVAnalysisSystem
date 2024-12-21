@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, message, Tabs, TabsProps } from "antd";
 import CvDetail from "./applicantDetail";
 import { getCvDetail } from "@/src/services/cv";
-import { getMatchingCvToJds } from "@/src/services/matching";
+import { getMatchingCvToJds } from "@/src/services";
 import MatchingJD from "./matchingJD/MatchingJD";
 import { useModalResult } from "@/src/hooks/use-modal-store";
 
@@ -21,7 +21,7 @@ const Page = ({ params }: Props) => {
   const [resCvDetail, setResCVDetail] = useState<API.ResponseCvDetail>();
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvAndJd>();
+  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvAndJds>();
 
   useEffect(() => {
     getCvDetail(id)

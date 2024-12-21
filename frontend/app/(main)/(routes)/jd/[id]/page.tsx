@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, message, Tabs, TabsProps } from "antd";
 import JobDetail from "./jobDetail";
 import MatchingCV from "./matchingCV/MatchingCV";
-import { getJdDetail } from "@/src/services/jd";
-import { getMatchingJdToCvs } from "@/src/services/matching";
+import { getJdDetail } from "@/src/services/jd/index.ts";
+import { getMatchingJdToCvs } from "@/src/services";
 
 interface Props {
   params: {
@@ -18,7 +18,7 @@ const Page = ({ params }: Props) => {
   const [resJdDetail, setResJdDetail] = useState<API.ResponseJdDetail>();
   const [loading, setLoading] = useState<boolean>(true);
 
-  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvAndJd>();
+  const [resMatching, setResMatching] = useState<API.ResponseMatchingCvAndJds>();
 
   useEffect(() => {
     getJdDetail(id)
