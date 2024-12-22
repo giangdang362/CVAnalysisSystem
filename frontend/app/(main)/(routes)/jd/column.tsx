@@ -1,6 +1,7 @@
 import { APP_ROUTES } from "@/src/configs/routes";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Button } from "antd";
+import { deleteJd } from "@/src/services/jd";
+import { DeleteOutlined, EditOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { Button, message, Modal } from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 
@@ -14,6 +15,27 @@ export const columns = (
     handleSetShowModalForm();
     handleReload();
   };
+  const { confirm } = Modal;
+  const showDeleteConfirm = (id: number) => {
+    confirm({
+      title: 'Delete this Cv',
+      icon: <ExclamationCircleFilled style={{ color: 'red' }} />,
+      content: 'Do you really want to delete this item? This process can not be undone.',
+      okText: 'Delete',
+      okType: 'danger',
+      cancelText: 'Cancel',
+      onOk: async () => {
+        try {
+          await deleteJd(id).then(() => {
+            message.success("Delete successfully!");
+          });
+          handleReload();
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      },
+    });
+  };
   return [
     {
       title: "#",
@@ -23,7 +45,7 @@ export const columns = (
       render: (_, __, index) => <span>{index + 1}</span>,
     },
     {
-      title: "Job name",
+      title: "Job Name",
       dataIndex: "name",
       key: "name",
       render: (_, original) => (
@@ -53,13 +75,13 @@ export const columns = (
       render: (_, original) => <div>{original?.level}</div>,
     },
     {
-      title: "language",
+      title: "Language",
       dataIndex: "languages",
       key: "languages",
       align: "center",
     },
     {
-      title: "Technical skills",
+      title: "Technical Skills",
       dataIndex: "technical_skill",
       key: "technical_skill",
       align: "center",
@@ -78,13 +100,14 @@ export const columns = (
         <div
           style={{
             display: 'flex',
+            justifyContent: "center",
             gap: '6px',
           }}
         >
           <Button onClick={() => {
             handleClickEdit(original);
           }} icon={<EditOutlined />} />
-          <Button icon={<DeleteOutlined />} />
+          <Button onClick={()=> showDeleteConfirm(original?.id ?? -1)} icon={<DeleteOutlined />} />
         </div>
     },
   ];

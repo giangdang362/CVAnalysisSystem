@@ -67,9 +67,10 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     }
 
     const payload: API.JdItem = {
+      id: curItem.id,
       name: formItem.name,
       company_name: formItem.company_name,
-      role: roleSelected,
+      role: roleSelected ? roleSelected : curItem.role,
       level: formItem.level,
       languages: formItem.languages,
       technical_skill: formItem.technical_skill,
@@ -83,8 +84,11 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
         await postNewJd(payload);
         message.success("Create successfully!");
       } else {
-        await putJd(payload);
-        message.success("Update successfully!");
+        const { path_file, ...rest } = payload;
+        await putJd(selectedFile ? payload : {
+          ...rest,
+          path_file: curItem.path_file
+        });
       }
     } catch (error) {
       console.error("Error in handleSave:", error);
@@ -107,8 +111,24 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     form.setFieldValue('description', curItem?.description);
     form.setFieldValue('requirement', curItem?.requirement);
 
+    if (curItem?.id && curItem?.path_file) {
+      const initialFileList: UploadFile<any>[] = [
+        {
+          uid: '-1',
+          name: curItem?.path_file.substring(3) || '',
+          status: 'done',
+          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        },
+      ];
+      setCurFile(initialFileList);
+      form.setFieldsValue({ path_file: initialFileList });
+    } else {
+      setCurFile([]);
+      form.setFieldsValue({ path_file: "" });
+    }
+
     handleGetListRole();
-  }, []);
+  }, [curItem]);
 
   return (
     <Modal
@@ -200,7 +220,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
             <ProFormUploadButton
               label="Upload JD"
               title={"Choose file"}
-              name={'file'}
+              name={'path_file'}
               max={1}
               fieldProps={{
                 onRemove: () => {

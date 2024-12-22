@@ -16,6 +16,12 @@ export const postNewJd = async (payload: API.JdItem) => {
 };
 
 export const putJd = async (payload: API.JdItem) => {
-  const response = await api.post(`/jd/edit/${payload.id}`, payload);
+  const { id, ...data } = payload;
+  const response = await api.put(`/jd/${id}`, data);
+  return response.data;
+}
+
+export const deleteJd = async (id: number) => {
+  const response = await api.delete(`/jd/${id}`);
   return response.data;
 }

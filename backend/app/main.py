@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, UploadFile, File, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, asc
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List
 from datetime import datetime
@@ -137,11 +137,60 @@ async def add_cv(
         raise HTTPException(
             status_code=500, detail="An error occurred while creating CV."
         )
+@app.put("/cv/{cv_id}", tags=["CV Management"], response_model=CvSchema)
+async def update_cv(
+    cv_id: int,
+    payload: CvCreateSchema = Body(...),  # Dữ liệu cần cập nhật
+    db: Session = Depends(get_db),
+):
+    try:
+        # Tìm CV trong cơ sở dữ liệu
+        cv = db.query(CV).filter(CV.id == cv_id).first()
+        if not cv:
+            raise HTTPException(status_code=404, detail="CV not found")
 
+        # Cập nhật các trường
+        cv.name = payload.name
+        cv.path_file = payload.path_file
+        cv.expect_salary = payload.expect_salary
+        cv.role = payload.role
+        cv.education = payload.education
+        cv.recruiter = payload.recruiter
+        cv.experience_summary = payload.experience_summary
+        cv.updated_at = datetime.utcnow()
+
+        # Lưu thay đổi vào cơ sở dữ liệu
+        db.commit()
+        db.refresh(cv)
+
+        return cv
+    except Exception as e:
+        logger.error(f"Error while updating CV: {str(e)}")  # Log lỗi debug
+        raise HTTPException(
+            status_code=500, detail="An error occurred while updating CV."
+        )
+@app.delete("/cv/{cv_id}", tags=["CV Management"])
+async def delete_cv(cv_id: int, db: Session = Depends(get_db)):
+    try:
+        # Tìm CV trong cơ sở dữ liệu
+        cv = db.query(CV).filter(CV.id == cv_id).first()
+        if not cv:
+            raise HTTPException(status_code=404, detail="CV not found")
+
+        # Xóa CV khỏi cơ sở dữ liệu
+        db.delete(cv)
+        db.commit()
+
+        return {"status": "success", "message": f"CV with id {cv_id} has been deleted."}
+    except Exception as e:
+        logger.error(f"Error while deleting CV: {str(e)}")  # Log lỗi debug
+        raise HTTPException(
+            status_code=500, detail="An error occurred while deleting CV."
+        )
 @app.get("/cv", tags=["CV Management"])
 async def get_all_cvs(db: Session = Depends(get_db)):
     """Get a list of all CVs"""
-    cvs = db.query(CV).all()
+    cvs = db.query(CV).order_by(asc(CV.created_at)).all()
     return {"message": "success", "data": cvs, "count": len(cvs)}
 
 @app.post("/jd/create", tags=["JD Management"], response_model=JdSchema)
@@ -174,11 +223,62 @@ async def add_jd(
         raise HTTPException(
             status_code=500, detail="An error occurred while creating JD."
         )
+@app.put("/jd/{jd_id}", tags=["JD Management"], response_model=JdSchema)
+async def update_jd(
+    jd_id: int,
+    payload: JdCreateSchema = Body(...),  # Dữ liệu cần cập nhật
+    db: Session = Depends(get_db),
+):
+    try:
+        # Tìm JD trong cơ sở dữ liệu
+        jd = db.query(JD).filter(JD.id == jd_id).first()
+        if not jd:
+            raise HTTPException(status_code=404, detail="JD not found")
 
+        # Cập nhật các trường
+        jd.name = payload.name
+        jd.path_file = payload.path_file
+        jd.company_name = payload.company_name
+        jd.role = payload.role
+        jd.level = payload.level
+        jd.languages = payload.languages
+        jd.technical_skill = payload.technical_skill
+        jd.requirement = payload.requirement
+        jd.description = payload.description
+        jd.updated_at = datetime.utcnow()
+
+        # Lưu thay đổi vào cơ sở dữ liệu
+        db.commit()
+        db.refresh(jd)
+
+        return jd
+    except Exception as e:
+        logger.error(f"Error while updating JD: {str(e)}")  # Log lỗi debug
+        raise HTTPException(
+            status_code=500, detail="An error occurred while updating JD."
+        )
+@app.delete("/jd/{jd_id}", tags=["JD Management"])
+async def delete_jd(jd_id: int, db: Session = Depends(get_db)):
+    try:
+        # Tìm JD trong cơ sở dữ liệu
+        jd = db.query(JD).filter(JD.id == jd_id).first()
+        if not jd:
+            raise HTTPException(status_code=404, detail="JD not found")
+
+        # Xóa JD khỏi cơ sở dữ liệu
+        db.delete(jd)
+        db.commit()
+
+        return {"status": "success", "message": f"JD with id {jd_id} has been deleted."}
+    except Exception as e:
+        logger.error(f"Error while deleting JD: {str(e)}")  # Log lỗi debug
+        raise HTTPException(
+            status_code=500, detail="An error occurred while deleting JD."
+        )
 @app.get("/jd", tags=["JD Management"])
 async def get_all_jds(db: Session = Depends(get_db)):
     """Get a list of all JDs"""
-    jds = db.query(JD).all()
+    jds = db.query(JD).order_by(asc(JD.created_at)).all()
     return {"message": "success", "data": jds, "count": len(jds)}
 
 @app.post("/matching/cv-to-jds", tags=["Matching"])

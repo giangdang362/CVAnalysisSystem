@@ -7,7 +7,6 @@ import { columns } from "./column";
 import { getAnalyzeResultCvToJds } from "@/src/services";
 import { SearchOutlined } from "@ant-design/icons";
 import { useModalResult } from "@/src/hooks/use-modal-store";
-import { Bounce, toast } from "react-toastify";
 
 const MatchingJD = ({ data, cv_id, jd_ids }: {
   data: API.JdItem[],
@@ -23,17 +22,7 @@ const MatchingJD = ({ data, cv_id, jd_ids }: {
     getAnalyzeResultCvToJds({ cv_id, jd_ids })
       .then((res) => {
         if (res.data.length) {
-          toast.success("Analyzed success!", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
-          });
+          message.success("Analyzed success!")
         }
         setRes(res);
         if (res.data.length) {

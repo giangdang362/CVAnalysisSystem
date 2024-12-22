@@ -16,6 +16,12 @@ export const postNewCv = async (payload: API.CvItem) => {
 }
 
 export const putCv = async (payload: API.CvItem) => {
-  const response = await api.post(`/cv/edit/${payload.id}`, payload);
+  const { id, ...data } = payload;
+  const response = await api.put(`/cv/${id}`, data);
+  return response.data;
+}
+
+export const deleteCv = async (id: number) => {
+  const response = await api.delete(`/cv/${id}`);
   return response.data;
 }

@@ -1,4 +1,5 @@
 // ex: 2023-10-02T21:03:16.044967+07:00 ==> 02/10/2020, 21:03
+const { NEXT_PUBLIC_AWS_URL } = process.env;
 export const FormatDateTime = (inputDateString: string) => {
   const inputDate = new Date(inputDateString);
 
@@ -14,4 +15,8 @@ export const FormatDateTime = (inputDateString: string) => {
 
 export const FormatNumber = (x: number) => {
   return Number(x).toLocaleString('en-US');
+};
+
+export const getUrlFile = (x: string) => {
+  return `${NEXT_PUBLIC_AWS_URL}/${x}`;
 };

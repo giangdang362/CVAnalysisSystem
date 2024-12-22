@@ -67,9 +67,10 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     }
 
     const payload: API.CvItem = {
+      id: curItem.id,
       name: formItem.name,
       recruiter: formItem.recruiter,
-      role: roleSelected,
+      role: roleSelected ? roleSelected : curItem.role,
       education: formItem.education,
       expect_salary: formItem.expect_salary,
       experience_summary: formItem.experience_summary,
@@ -81,7 +82,11 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
         await postNewCv(payload);
         message.success("Create successfully!");
       } else {
-        await putCv(payload);
+        const {  path_file ,...rest } = payload;
+        await putCv(selectedFile ? payload : {
+          ...rest,
+          path_file: curItem.path_file
+        });
         message.success("Update successfully!");
       }
     } catch (error) {
@@ -102,9 +107,24 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     form.setFieldValue('education', curItem?.education);
     form.setFieldValue('expect_salary', curItem?.expect_salary);
     form.setFieldValue('experience_summary', curItem?.experience_summary);
+    if (curItem?.id && curItem?.path_file) {
+      const initialFileList: UploadFile<any>[] = [
+        {
+          uid: '-1',
+          name: curItem?.path_file.substring(3) || '',
+          status: 'done',
+          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        },
+      ];
+      setCurFile(initialFileList);
+      form.setFieldsValue({ path_file: initialFileList });
+    } else {
+      setCurFile([]);
+      form.setFieldsValue({ path_file: "" });
+    }
 
     handleGetListRole();
-  }, []);
+  }, [curItem]);
 
   return (
     <Modal
@@ -181,7 +201,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
             <ProFormUploadButton
               label="Upload CV"
               title={"Choose file"}
-              name={'file'}
+              name={'path_file'}
               max={1}
               fieldProps={{
                 onRemove: () => {
