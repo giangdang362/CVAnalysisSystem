@@ -34,7 +34,7 @@ const TablePage = () => {
 
   useEffect(() => {
     handleGetJDList();
-  }, [reload, ]);
+  }, [reload, curItem]);
 
   return (
     <ConfigProvider

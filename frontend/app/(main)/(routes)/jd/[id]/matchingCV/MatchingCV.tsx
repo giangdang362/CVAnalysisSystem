@@ -30,7 +30,7 @@ const MatchingCV = ({ data, jd_id, cv_ids }: {
         if (res.data.length) {
           setTimeout(() => {
             onOpen();
-          }, 500);
+          }, 800);
         }
       })
       .catch(() => {

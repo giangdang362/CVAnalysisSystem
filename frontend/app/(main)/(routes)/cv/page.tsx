@@ -35,7 +35,7 @@ const TablePage = () => {
 
   useEffect(() => {
     handleGetCVList();
-  }, [reload]);
+  }, [reload, curItem]);
 
   return (
     <ConfigProvider

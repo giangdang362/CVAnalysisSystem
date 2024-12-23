@@ -31,7 +31,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setCurItem({});
+    // setCurItem({});
     setReload((pre) => !pre);
     setLoading(false);
     form?.resetFields();
@@ -94,9 +94,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
       console.error("Error in handleSave:", error);
       message.error("Failed. Please try again!");
     } finally {
-      setLoading(false);
       handleCloseModal();
-      setReload((pre) => !pre);
     }
   };
 

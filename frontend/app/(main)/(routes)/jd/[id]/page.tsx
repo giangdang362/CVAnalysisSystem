@@ -81,7 +81,7 @@ const Page = ({ params }: Props) => {
     <div>
       <Tabs
         defaultActiveKey="1"
-        items={items}
+        items={items ?? []}
         onChange={handleTabChange}
         // tabBarExtraContent={slot}
       />

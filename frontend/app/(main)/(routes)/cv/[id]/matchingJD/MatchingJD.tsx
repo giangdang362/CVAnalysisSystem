@@ -42,7 +42,6 @@ const MatchingJD = ({ data, cv_id, jd_ids }: {
 
   const handleAnalyze = () => {
     fetchData();
-    !loading && onOpen();
   }
 
   return (
