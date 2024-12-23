@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button, message, Tabs, TabsProps } from "antd";
 import JobDetail from "./jobDetail";
 import MatchingCV from "./matchingCV/MatchingCV";
-import { getJdDetail } from "@/src/services/jd/index.ts";
 import { getMatchingJdToCvs } from "@/src/services";
+import { getJdDetail } from "@/src/services/jd";
 
 interface Props {
   params: {

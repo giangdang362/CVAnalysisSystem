@@ -115,7 +115,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
       const initialFileList: UploadFile<any>[] = [
         {
           uid: '-1',
-          name: curItem?.path_file.substring(3) || '',
+          name: curItem?.path_file.substring(40) || '',
           status: 'done',
           type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         },
@@ -128,7 +128,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     }
 
     handleGetListRole();
-  }, [curItem]);
+  }, [curItem, form]);
 
   return (
     <Modal

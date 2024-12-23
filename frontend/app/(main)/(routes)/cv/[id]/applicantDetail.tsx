@@ -11,7 +11,7 @@ const CvDetail = ({ item }: Props) => {
 
   return (
     <div>
-      <div className="text-5xl font-bold mb-5">{item.applicant_name}</div>
+      <div className="text-5xl font-bold mb-5">{item.name}</div>
       <div className="flex flex-col gap-2">
         <p>
           <span className="font-bold">Role:</span> {item.role}
