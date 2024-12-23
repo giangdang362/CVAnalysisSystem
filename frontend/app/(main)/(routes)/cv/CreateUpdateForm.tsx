@@ -204,11 +204,13 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
               name={'path_file'}
               max={1}
               fieldProps={{
+                accept: ".docx,.pdf",
                 onRemove: () => {
                   setCurFile([]);
                   form.setFieldsValue({ file: undefined });
                 },
                 onChange: handleFileChange,
+                
               }}
               fileList={curFile}
               rules={[formItemRule.required()]}
