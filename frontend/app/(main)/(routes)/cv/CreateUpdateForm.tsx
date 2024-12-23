@@ -82,7 +82,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
         await postNewCv(payload);
         message.success("Create successfully!");
       } else {
-        const {  path_file ,...rest } = payload;
+        const { path_file, ...rest } = payload;
         await putCv(selectedFile ? payload : {
           ...rest,
           path_file: curItem.path_file
@@ -180,9 +180,19 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
             />
             <ProFormText
               label="Expected Salary"
-              placeholder={''}
-              name={'expect_salary'}
-              rules={[formItemRule.required()]}
+              placeholder=""
+              name="expect_salary"
+              rules={[
+                formItemRule.required(),
+                { pattern: /^\d+$/, message: 'Please enter a valid number' },
+              ]}
+              fieldProps={{
+                onKeyPress: (event) => {
+                  if (!/[0-9]/.test(event.key)) {
+                    event.preventDefault();
+                  }
+                },
+              }}
               allowClear
             />
           </div>

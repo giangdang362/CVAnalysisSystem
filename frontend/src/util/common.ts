@@ -18,5 +18,5 @@ export const FormatNumber = (x: number) => {
 };
 
 export const getUrlFile = (x: string) => {
-  return `${NEXT_PUBLIC_AWS_URL}/${x}`;
+  return `https://docs.google.com/gview?url=${NEXT_PUBLIC_AWS_URL}/${x}`;
 };
