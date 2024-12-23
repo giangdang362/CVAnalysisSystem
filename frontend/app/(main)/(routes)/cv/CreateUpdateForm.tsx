@@ -124,7 +124,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     }
 
     handleGetListRole();
-  }, [curItem]);
+  }, [curItem, form]);
 
   return (
     <Modal
@@ -210,7 +210,6 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
                   form.setFieldsValue({ file: undefined });
                 },
                 onChange: handleFileChange,
-                
               }}
               fileList={curFile}
               rules={[formItemRule.required()]}
