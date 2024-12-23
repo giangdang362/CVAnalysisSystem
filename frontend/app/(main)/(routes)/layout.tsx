@@ -33,13 +33,13 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
         >
           <SiderPage />
         </div>
-        <div
+        {/* <div
           className={cn(
             "fixed w-full top-[48px] h-[40px] z-10 transition-all",
             isCollapsed ? "ml-[50px]" : "ml-[210px]"
           )}
         >
-          {/* <div
+          <div
             className="h-full flex items-center bg-[#f0f4f7]"
             style={{
               color: settings.themeMode === ThemeMode.Dark ? "#ffffff" : "",
@@ -48,8 +48,8 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             }}
           >
             <NavBreadcrumb />
-          </div> */}
-        </div>
+          </div>
+        </div> */}
         <main
           className={cn(
             "w-full min-h-[100vh] bg-[#f0f4f7] p-10 pt-[60px] transition-spacing",

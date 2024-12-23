@@ -18,7 +18,7 @@ export const columns = (
   const { confirm } = Modal;
   const showDeleteConfirm = (id: number) => {
     confirm({
-      title: 'Delete this Cv',
+      title: 'Delete this Jd',
       icon: <ExclamationCircleFilled style={{ color: 'red' }} />,
       content: 'Do you really want to delete this item? This process can not be undone.',
       okText: 'Delete',
