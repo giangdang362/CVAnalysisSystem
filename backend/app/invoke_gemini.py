@@ -11,10 +11,10 @@ GENERATION_CONFIG = {
     "temperature": 0.9,
     "top_p": 1,
     "top_k": 1,
-    "max_output_tokens": 1024 * 10,  # Tối đa số token đầu ra
+    "max_output_tokens": 8192,  # Tối đa số token đầu ra
 }
 
-MODEL_NAME = "gemini-1.5-pro"  # Model name hợp lệ (đã kiểm tra)
+MODEL_NAME = "gemini-2.0-flash-exp"
 
 def extract_scores_from_response(response_text: str):
     """

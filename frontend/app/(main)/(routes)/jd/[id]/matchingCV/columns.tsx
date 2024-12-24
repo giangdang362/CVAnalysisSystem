@@ -12,23 +12,20 @@ export const columns = (
       render: (_, __, index) => <span>{index + 1}</span>,
     },
     {
-      title: "Name",
+      title: "CV Name",
       dataIndex: "name",
       key: "name",
-      render: (_, original) => (
-        <div
-          className="!text-blue-500 cursor-pointer hover:!text-blue-700"
-          // onClick={onOpen}
-        >
-          {original?.name}
-        </div>
-      ),
+    },
+    {
+      title: "Recruiter",
+      dataIndex: "recruiter",
+      key: "recruiter",
+      align: "center",
     },
     {
       title: "Role",
       dataIndex: "role",
       key: "role",
-      render: (_, original) => <div>{original?.role}</div>,
     },
     {
       title: "Education",
@@ -47,12 +44,12 @@ export const columns = (
       dataIndex: "experience_summary",
       key: "experience_summary",
       align: "center",
-    },
-    {
-      title: "Recruiter",
-      dataIndex: "recruiter",
-      key: "recruiter",
-      align: "center",
+      width: 600,
+      render: (_, original) => (
+        <div style={{
+          textAlign: "left"
+        }}>{original.experience_summary}</div>
+      )
     },
     {
       title: "Created At",

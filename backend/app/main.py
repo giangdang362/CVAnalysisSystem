@@ -52,7 +52,7 @@ app = FastAPI(
 # Add middleware for CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (not recommended in production)
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -325,13 +325,16 @@ async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db
 
         # Đọc nội dung CV từ S3
         cv_text = ""
-        if cv.path_file.lower().endswith(".pdf"):
-            cv_text = read_pdf_from_s3(cv.path_file)
-        elif cv.path_file.lower().endswith(".docx"):
-            cv_text = read_docx_from_s3(cv.path_file)
-        else:
-            raise HTTPException(status_code=400, detail="Unsupported CV file format")
-        
+        try:
+            if cv.path_file.lower().endswith(".pdf"):
+                cv_text = read_pdf_from_s3(cv.path_file)
+            elif cv.path_file.lower().endswith(".docx"):
+                cv_text = read_docx_from_s3(cv.path_file)
+            else:
+                raise HTTPException(status_code=400, detail="Unsupported CV file format")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error reading CV: {e}")
+
         # Đọc nội dung Prompt từ file DOCX
         prompt_text = read_docx(PROMPT_FILE_OLD)
 
@@ -340,12 +343,17 @@ async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db
         # Đọc nội dung JD từ S3 và thực hiện phân tích
         for jd in jds:
             jd_text = ""
-            if jd.path_file.lower().endswith(".pdf"):
-                jd_text = read_pdf_from_s3(jd.path_file)
-            elif jd.path_file.lower().endswith(".docx"):
-                jd_text = read_docx_from_s3(jd.path_file)
-            else:
-                raise HTTPException(status_code=400, detail="Unsupported JD file format")
+            try:
+                if jd.path_file.lower().endswith(".pdf"):
+                    jd_text = read_pdf_from_s3(jd.path_file)
+                elif jd.path_file.lower().endswith(".docx"):
+                    jd_text = read_docx_from_s3(jd.path_file)
+                else:
+                    raise HTTPException(status_code=400, detail="Unsupported JD file format")
+            except Exception as e:
+                # Ghi nhận lỗi cho JD cụ thể và tiếp tục
+                results.append({"name": jd.name, "error": f"Error reading JD: {e}"})
+                continue
 
             # Chuẩn bị prompt
             prompt = f"""
@@ -363,7 +371,8 @@ async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db
             response = invoke_gemini_api(prompt)
             
             if "error" in response:
-                raise HTTPException(status_code=500, detail=response["error"])
+                results.append({"name": jd.name, "error": response["error"]})
+                continue
 
             # Xây dựng kết quả
             result = {
@@ -376,9 +385,11 @@ async def rank_cv_against_jds(payload: RankRequest, db: Session = Depends(get_db
             }
             results.append(result)
 
-        # Sắp xếp kết quả theo điểm tổng thể (giảm dần)
-        results.sort(key=lambda x: x["overall_score"], reverse=True)
-        return {"message": "success", "data": results, "count": len(results)}
+        # Sắp xếp kết quả hợp lệ theo overall_score (giảm dần)
+        valid_results = [res for res in results if "overall_score" in res]
+        valid_results.sort(key=lambda x: x["overall_score"], reverse=True)
+
+        return {"message": "success", "data": valid_results, "count": len(valid_results), "errors": [res for res in results if "error" in res]}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -509,12 +520,20 @@ def download_file_from_s3(s3_path):
 # Hàm đọc PDF từ S3
 def read_pdf_from_s3(path_file: str):
     from PyPDF2 import PdfReader
+    from io import BytesIO  # Import BytesIO để chuyển đổi bytes thành file-like object
+
+    # Đọc nội dung file từ S3
     file_content = read_file_from_s3(path_file)
-    pdf_reader = PdfReader(file_content)
+
+    # Bọc nội dung file bytes vào BytesIO
+    pdf_reader = PdfReader(BytesIO(file_content))
+    
+    # Trích xuất text từ các trang PDF
     text = ""
     for page in pdf_reader.pages:
-        text += page.extract_text()
+        text += page.extract_text()  # PyPDF2 có thể trả về None nếu không đọc được text
     return text
+
 
 # Hàm đọc DOCX từ S3
 def read_docx_from_s3(path_file: str):

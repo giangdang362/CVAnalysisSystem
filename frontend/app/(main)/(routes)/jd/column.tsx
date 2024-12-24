@@ -91,6 +91,12 @@ export const columns = (
       dataIndex: "description",
       key: "description",
       align: "center",
+      width: 500,
+      render: (_, original) => (
+        <div style={{
+          textAlign: "left"
+        }}>{original.description}</div>
+      )
     },
     {
       title: "Action",

@@ -148,16 +148,16 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
         <div className="flex gap-5">
           <div className="w-full">
             <ProFormText
-              label="Recruiter"
+              label="CV Name"
               placeholder={''}
-              name={'recruiter'}
+              name={'name'}
               rules={[formItemRule.required()]}
               allowClear
             />
             <ProFormText
-              label="CV Name"
+              label="Recruiter"
               placeholder={''}
-              name={'name'}
+              name={'recruiter'}
               rules={[formItemRule.required()]}
               allowClear
             />
@@ -203,7 +203,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
               name={'experience_summary'}
               rules={[formItemRule.required()]}
               allowClear
-              fieldProps={{ rows: 5 }}
+              fieldProps={{ rows: 11 }}
             />
             <ProFormUploadButton
               label="Upload CV"

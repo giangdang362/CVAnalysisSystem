@@ -11,18 +11,10 @@ export const columns = (
       render: (_, __, index) => <span>{index + 1}</span>,
     },
     {
-      title: "Name",
+      title: "JD Name",
       dataIndex: "name",
       key: "name",
       align: "center",
-      render: (_, original) => (
-        <div
-          className="text-blue-500 cursor-pointer hover:text-blue-700"
-          // onClick={onOpen}
-        >
-          {original?.name}
-        </div>
-      ),
     },
     {
       title: "Title",
@@ -36,13 +28,6 @@ export const columns = (
       dataIndex: "company_name",
       key: "company_name",
       align: "center",
-    },
-    {
-      title: "Role",
-      dataIndex: "role",
-      key: "role",
-      align: "center",
-      render: (_, original) => <div>{original?.role}</div>,
     },
     {
       title: "Language",
@@ -61,6 +46,12 @@ export const columns = (
       dataIndex: "description",
       key: "description",
       align: "center",
+      width: 600,
+      render: (_, original) => (
+        <div style={{
+          textAlign: "left"
+        }}>{original.description}</div>
+      )
     },
   ];
 };

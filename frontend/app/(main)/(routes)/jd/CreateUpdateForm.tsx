@@ -205,7 +205,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
               name={'description'}
               rules={[formItemRule.required()]}
               allowClear
-              fieldProps={{ rows: 5 }}
+              fieldProps={{ rows: 6 }}
             />
             <ProFormTextArea
               label="Requirement"

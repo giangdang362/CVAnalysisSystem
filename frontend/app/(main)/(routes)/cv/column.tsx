@@ -50,12 +50,18 @@ export const columns = (
       key: "name",
       render: (_, original) => (
         <Link
-          className="!text-blue-500"
-          href={`${APP_ROUTES.CV.path}/${original?.id}`}
+        className="!text-blue-500"
+        href={`${APP_ROUTES.CV.path}/${original?.id}`}
         >
           {original?.name}
         </Link>
       ),
+    },
+    {
+      title: "Recruiter",
+      dataIndex: "recruiter",
+      key: "recruiter",
+      align: "center",
     },
     {
       title: "Role",
@@ -80,12 +86,12 @@ export const columns = (
       dataIndex: "experience_summary",
       key: "experience_summary",
       align: "center",
-    },
-    {
-      title: "Recruiter",
-      dataIndex: "recruiter",
-      key: "recruiter",
-      align: "center",
+      width: 500,
+      render: (_, original) => (
+        <div style={{
+          textAlign: "left"
+        }}>{original.experience_summary}</div>
+      )
     },
     {
       title: "Created At",
