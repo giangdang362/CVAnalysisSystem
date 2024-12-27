@@ -52,7 +52,10 @@ const TablePage = () => {
           shape="round"
           icon={<PlusOutlined />}
           size={"middle"}
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setCurItem({})
+            setShowModal(true)
+          }}
         >
           Add new CV
         </Button>

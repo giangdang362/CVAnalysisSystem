@@ -31,7 +31,8 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
 
   const handleCloseModal = () => {
     setShowModal(false);
-    // setCurItem({});
+    setCurItem({});
+    setCurFile([]);
     setReload((pre) => !pre);
     setLoading(false);
     form?.resetFields();
