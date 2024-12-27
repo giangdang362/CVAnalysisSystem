@@ -10,7 +10,7 @@ import CreateUpdateForm from "./CreateUpdateForm";
 
 const TablePage = () => {
   const [res, setRes] = useState<API.ResponseGetListCV>();
-  const [curItem, setCurItem] = useState<API.CvItem>({});
+  const [curItem, setCurItem] = useState<API.CvItem>();
   const [loading, setLoading] = useState<boolean>(false);
   const [reload, setReload] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -52,10 +52,7 @@ const TablePage = () => {
           shape="round"
           icon={<PlusOutlined />}
           size={"middle"}
-          onClick={() => {
-            setCurItem({})
-            setShowModal(true)
-          }}
+          onClick={() => setShowModal(true)}
         >
           Add new CV
         </Button>

@@ -12,7 +12,7 @@ interface CreateUpdateFormProps {
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   curItem?: API.CvItem;
   setReload: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurItem: React.Dispatch<React.SetStateAction<API.CvItem>>;
+  setCurItem: React.Dispatch<React.SetStateAction<API.CvItem | undefined>>;
 }
 
 const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
@@ -31,7 +31,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setCurItem({});
+    setCurItem(undefined);
     setCurFile([]);
     setReload((pre) => !pre);
     setLoading(false);
@@ -68,7 +68,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     }
 
     const payload: API.CvItem = {
-      id: curItem.id,
+      id: curItem?.id ?? -1,
       name: formItem.name,
       recruiter: formItem.recruiter,
       role: roleSelected ? roleSelected : curItem.role,
@@ -101,7 +101,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
   useEffect(() => {
     form.setFieldValue('recruiter', curItem?.recruiter);
     form.setFieldValue('name', curItem?.name);
-    form.setFieldValue('role', curItem.role);
+    form.setFieldValue('role', curItem?.role);
     form.setFieldValue('education', curItem?.education);
     form.setFieldValue('expect_salary', curItem?.expect_salary);
     form.setFieldValue('experience_summary', curItem?.experience_summary);
@@ -126,7 +126,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
 
   return (
     <Modal
-      title={!curItem.id ? "Add new CV" : "Edit CV"}
+      title={!curItem?.id ? "Add new CV" : "Edit CV"}
       open={showModal}
       onOk={() => form.submit()}
       onCancel={handleCloseModal}

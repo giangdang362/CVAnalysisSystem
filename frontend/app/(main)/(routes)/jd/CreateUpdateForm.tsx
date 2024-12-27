@@ -12,7 +12,7 @@ interface CreateUpdateFormProps {
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   curItem?: API.JdItem;
   setReload: React.Dispatch<React.SetStateAction<boolean>>;
-  setCurItem: React.Dispatch<React.SetStateAction<API.JdItem>>;
+  setCurItem: React.Dispatch<React.SetStateAction<API.JdItem | undefined>>;
 }
 
 const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
@@ -31,7 +31,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setCurItem({});
+    setCurItem(undefined);
     setCurFile([]);
     setReload((pre) => !pre);
     setLoading(false);
@@ -68,7 +68,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
     }
 
     const payload: API.JdItem = {
-      id: curItem.id,
+      id: curItem?.id ?? -1,
       name: formItem.name,
       company_name: formItem.company_name,
       role: roleSelected ? roleSelected : curItem.role,
@@ -103,7 +103,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
   useEffect(() => {
     form.setFieldValue('name', curItem?.name);
     form.setFieldValue('company_name', curItem?.company_name);
-    form.setFieldValue('role', curItem.role);
+    form.setFieldValue('role', curItem?.role);
     form.setFieldValue('level', curItem?.level);
     form.setFieldValue('languages', curItem?.languages);
     form.setFieldValue('technical_skill', curItem?.technical_skill);
@@ -131,7 +131,7 @@ const CreateUpdateForm: FC<CreateUpdateFormProps> = ({
 
   return (
     <Modal
-      title={!curItem.id ? "Add new JD" : "Edit JD"}
+      title={!curItem?.id ? "Add new JD" : "Edit JD"}
       open={showModal}
       onOk={() => form.submit()}
       onCancel={handleCloseModal}

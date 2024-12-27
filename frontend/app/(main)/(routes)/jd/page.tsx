@@ -9,7 +9,7 @@ import { getJDList } from "@/src/services/jd";
 
 const TablePage = () => {
   const [res, setRes] = useState<API.ResponseGetListJD>();
-  const [curItem, setCurItem] = useState<API.JdItem>({});
+  const [curItem, setCurItem] = useState<API.JdItem>();
   const [loading, setLoading] = useState<boolean>(false);
   const [reload, setReload] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
