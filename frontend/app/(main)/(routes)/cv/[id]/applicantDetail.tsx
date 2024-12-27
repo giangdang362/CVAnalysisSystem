@@ -57,7 +57,7 @@ const CvDetail = ({ item }: Props) => {
           </div>
 
           {/* Basic Info */}
-          <div className="p-20 border rounded-lg shadow-sm">
+          <div className="px-16 border rounded-lg shadow-sm">
             <p>
               <span className="font-bold">Role:</span> {item.role}
             </p>
