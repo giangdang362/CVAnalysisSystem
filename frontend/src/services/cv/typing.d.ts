@@ -18,6 +18,7 @@ declare namespace API {
     id?: number;
     name?: string;
     path_file?: string;
+    avatar_url?: string;
     expect_salary?: number;
     role?: string;
     experience_summary?: string;

@@ -6,7 +6,8 @@ import ScoreButton from "@/components/ScoreButton";
 
 const columns: TableProps<API.ResultAnalyzeItem>["columns"] = [
   {
-    title: "JD",
+    key: "name",
+    title: "CV Name",
     dataIndex: "name",
   },
   {

@@ -38,11 +38,11 @@ cd CVAnalysisSystem/
 
 pm2 ls
 
-*** FE - ID: 0 || BE - ID: 15
+*** FE - ID: 0 || BE - ID: 1
 
 #### Activate venv:
 
-source venv/bin/active
+source venv/bin/activate
 
 ### Cài đặt tất cả các thư viện bằng lệnh:
 

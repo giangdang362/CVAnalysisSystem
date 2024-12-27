@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import { Button, Input, message, Table } from "antd";
-
-
 import { useModalResult } from "@/src/hooks/use-modal-store";
 import { columns } from "./columns";
 import { getAnalyzeResultJdToCvs } from "@/src/services";
@@ -48,8 +46,8 @@ const MatchingCV = ({ data, jd_id, cv_ids }: {
 
   return (
     <div>
-      <div className="flex justify-between">
-        <Input
+      <div className="flex justify-between mb-6">
+        {/* <Input
           style={{
             width: '300px',
             marginBottom: '24px',
@@ -58,8 +56,8 @@ const MatchingCV = ({ data, jd_id, cv_ids }: {
           prefix={<SearchOutlined />}
           // onChange={(e) => handleNameChange(e.target.value)}
           allowClear
-        />
-        <div className="flex justify-between gap-3">
+        /> */}
+        <div className="flex gap-3 w-full">
           <Button loading={loading} type="primary" disabled={res?.data.length ? true : false} onClick={handleAnalyze}>Analyze Score</Button>
           <Button type="primary" onClick={onOpen} disabled={res?.data.length ? false : true}>View Result</Button>
         </div>

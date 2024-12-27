@@ -46,8 +46,8 @@ const MatchingJD = ({ data, cv_id, jd_ids }: {
 
   return (
     <div>
-      <div className="flex justify-between">
-        <Input
+      <div className="flex justify-between mb-6">
+        {/* <Input
           style={{
             width: '300px',
             marginBottom: '24px',
@@ -56,7 +56,7 @@ const MatchingJD = ({ data, cv_id, jd_ids }: {
           prefix={<SearchOutlined />}
           // onChange={(e) => handleNameChange(e.target.value)}
           allowClear
-        />
+        /> */}
         <div className="flex justify-between gap-3">
           <Button loading={loading} type="primary" disabled={res?.data.length ? true : false} onClick={handleAnalyze}>Analyze Score</Button>
           <Button type="primary" onClick={onOpen} disabled={res?.data.length ? false : true}>View Result</Button>
